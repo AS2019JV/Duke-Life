@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply font-sans;
+  }
+
+  h1 {
+    @apply text-4xl font-extrabold tracking-tight text-white;
+  }
+
+  h2 {
+    @apply text-3xl font-bold tracking-tight text-white;
+  }
+
+  h3 {
+    @apply text-2xl font-bold tracking-tight text-white;
+  }
+
+  h4 {
+    @apply text-xl font-semibold tracking-tight text-white;
+  }
+
+  h5 {
+    @apply text-lg font-semibold text-white;
+  }
+
+  h6 {
+    @apply text-base font-semibold text-white;
+  }
+
+  p {
+    @apply text-base text-gray-300 leading-relaxed;
+  }
+
+  button {
+    @apply font-medium transition-all duration-200;
+  }
+
+  label {
+    @apply text-sm font-medium text-gray-200;
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.text-display {
+  @apply font-display;
+}
