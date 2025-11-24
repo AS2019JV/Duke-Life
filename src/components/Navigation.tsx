@@ -15,7 +15,7 @@ export default function Navigation({ activePage, onPageChange }: NavigationProps
   ];
 
   return (
-    <nav className="absolute bottom-0 left-0 right-0 z-40 bg-[#1a1a1a]/90 backdrop-blur-lg border-t border-white/10 p-4">
+    <nav className="absolute bottom-0 left-0 right-0 z-40 bg-black/60 backdrop-blur-xl border-t border-white/5 p-4">
       <div className="flex justify-around items-center">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -28,10 +28,10 @@ export default function Navigation({ activePage, onPageChange }: NavigationProps
                 onClick={() => onPageChange(item.id)}
                 className="flex flex-col items-center -mt-8"
               >
-                <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black rounded-full p-4 shadow-lg shadow-yellow-500/40 animate-pulse">
-                  <Icon className="w-8 h-8" />
+                <div className="bg-gold-400 hover:bg-gold-300 text-black rounded-full p-4 shadow-lg shadow-gold-900/20 transition-all duration-500">
+                  <Icon className="w-7 h-7" />
                 </div>
-                <span className="text-xs text-gray-300 font-medium mt-2 tracking-wide">{item.label}</span>
+                <span className="text-[9px] text-white/60 font-light mt-2 tracking-widest uppercase">{item.label}</span>
               </button>
             );
           }
@@ -40,12 +40,12 @@ export default function Navigation({ activePage, onPageChange }: NavigationProps
             <button
               key={item.id}
               onClick={() => onPageChange(item.id)}
-              className={`flex flex-col items-center transition-colors ${
-                isActive ? 'text-yellow-600' : 'text-gray-400 hover:text-yellow-600'
+              className={`flex flex-col items-center transition-all duration-300 ${
+                isActive ? 'text-gold-400' : 'text-white/40 hover:text-gold-400'
               }`}
             >
-              <Icon className="w-6 h-6" />
-              <span className="text-xs font-medium tracking-wide mt-1">{item.label}</span>
+              <Icon className="w-5 h-5" />
+              <span className="text-[9px] font-light tracking-widest uppercase mt-1">{item.label}</span>
             </button>
           );
         })}

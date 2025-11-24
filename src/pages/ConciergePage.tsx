@@ -91,13 +91,13 @@ export default function ConciergePage() {
 
   return (
     <div className="flex-1 flex flex-col pb-24">
-      <header className="sticky top-0 z-40 bg-[#0a0a0a]/80 backdrop-blur-lg border-b border-white/10 p-4">
-        <h1 className="text-2xl font-bold text-white text-center tracking-tight">Concierge 24/7</h1>
+      <header className="sticky top-0 z-40 bg-black/60 backdrop-blur-xl border-b border-white/5 p-6">
+        <h1 className="text-2xl font-extralight text-gold-400/90 text-center tracking-wide">Concierge 24/7</h1>
       </header>
 
-      <main className="flex-1 overflow-y-auto p-4 space-y-4">
+      <main className="flex-1 overflow-y-auto p-6 space-y-4">
         {loading ? (
-          <div className="text-center text-gray-400 py-8">Cargando mensajes...</div>
+          <div className="text-center text-white/40 py-12 font-light tracking-wide">Cargando mensajes...</div>
         ) : (
           messages.map((msg) => (
             <div
@@ -105,16 +105,16 @@ export default function ConciergePage() {
               className={`flex ${msg.sender_type === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`rounded-lg p-3 max-w-xs ${
+                className={`rounded-2xl px-5 py-3 max-w-xs ${
                   msg.sender_type === 'user'
-                    ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-black'
-                    : 'bg-[#1a1a1a] text-white'
+                    ? 'bg-gold-400 text-black'
+                    : 'bg-white/5 border border-white/10 text-white'
                 }`}
               >
-                <p className="text-sm font-normal leading-relaxed">{msg.message}</p>
+                <p className="text-sm font-light leading-relaxed">{msg.message}</p>
                 <span
-                  className={`text-xs block text-right mt-2 font-light ${
-                    msg.sender_type === 'user' ? 'text-black/70' : 'text-gray-500'
+                  className={`text-[9px] block text-right mt-2 font-light tracking-wider ${
+                    msg.sender_type === 'user' ? 'text-black/50' : 'text-white/40'
                   }`}
                 >
                   {formatTime(msg.created_at)}
@@ -126,18 +126,18 @@ export default function ConciergePage() {
         <div ref={messagesEndRef} />
       </main>
 
-      <footer className="sticky bottom-[76px] z-10 p-4 bg-[#1a1a1a] border-t border-white/10">
-        <form onSubmit={sendMessage} className="flex items-center space-x-2">
+      <footer className="sticky bottom-[76px] z-10 p-4 bg-black/60 backdrop-blur-xl border-t border-white/5">
+        <form onSubmit={sendMessage} className="flex items-center space-x-3">
           <input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Escriba su mensaje..."
-            className="flex-1 bg-gray-700 text-white border-none rounded-full px-4 py-2 text-sm font-normal focus:outline-none focus:ring-2 focus:ring-yellow-600 placeholder-gray-400"
+            className="flex-1 bg-white/5 border border-white/10 text-white rounded-full px-5 py-3 text-sm font-light focus:outline-none focus:border-gold-400 placeholder-white/30 transition-all duration-300"
           />
           <button
             type="submit"
-            className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black rounded-full p-2"
+            className="bg-gold-400 hover:bg-gold-300 text-black rounded-full p-3 transition-all duration-300"
           >
             <Send className="w-5 h-5" />
           </button>

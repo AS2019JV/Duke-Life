@@ -4,8 +4,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'sans-serif'],
-        display: ['system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'sans-serif'],
+        sans: ['Montserrat', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Montserrat', 'system-ui', '-apple-system', 'sans-serif'],
       },
       fontSize: {
         'xs': ['12px', { lineHeight: '16px', letterSpacing: '0.5px' }],
@@ -24,6 +24,35 @@ export default {
         semibold: 600,
         bold: 700,
         extrabold: 800,
+      },
+      colors: {
+        gold: {
+          100: '#F9F1D8',
+          200: '#F0DEAA',
+          300: '#E6CB7D',
+          400: '#D4AF37', // Classic Gold
+          500: '#C5A028',
+          600: '#B08D1E',
+          700: '#997B19',
+          800: '#806615',
+          900: '#665211',
+        },
+      },
+
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        shake: {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-4px)' },
+          '20%, 40%, 60%, 80%': { transform: 'translateX(4px)' },
+        },
+      },
+      animation: {
+        fadeIn: 'fadeIn 0.5s ease-out forwards',
+        shake: 'shake 0.5s ease-in-out',
       },
     },
   },

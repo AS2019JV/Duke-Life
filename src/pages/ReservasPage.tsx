@@ -84,28 +84,28 @@ export default function ReservasPage() {
 
   return (
     <div className="flex-1 overflow-y-auto pb-24">
-      <header className="sticky top-0 z-40 bg-[#0a0a0a]/80 backdrop-blur-lg border-b border-white/10 p-4">
-        <h1 className="text-2xl font-bold text-white text-center tracking-tight">Mis Reservas</h1>
+      <header className="sticky top-0 z-40 bg-black/60 backdrop-blur-xl border-b border-white/5 p-6">
+        <h1 className="text-2xl font-extralight text-gold-400/90 text-center tracking-wide">Mis Reservas</h1>
       </header>
 
-      <main className="p-4 space-y-6">
+      <main className="p-6 space-y-6">
         <div className="flex border-b border-white/10">
           <button
             onClick={() => setActiveTab('upcoming')}
-            className={`flex-1 font-medium py-3 border-b-2 transition-colors tracking-wide ${
+            className={`flex-1 font-light py-3 border-b-2 transition-all duration-300 tracking-widest uppercase text-[10px] ${
               activeTab === 'upcoming'
-                ? 'text-yellow-600 border-b-yellow-600'
-                : 'text-gray-400 border-b-transparent'
+                ? 'text-gold-400 border-b-gold-400'
+                : 'text-white/40 border-b-transparent hover:text-gold-400/60'
             }`}
           >
             Próximas
           </button>
           <button
             onClick={() => setActiveTab('past')}
-            className={`flex-1 font-medium py-3 border-b-2 transition-colors tracking-wide ${
+            className={`flex-1 font-light py-3 border-b-2 transition-all duration-300 tracking-widest uppercase text-[10px] ${
               activeTab === 'past'
-                ? 'text-yellow-600 border-b-yellow-600'
-                : 'text-gray-400 border-b-transparent'
+                ? 'text-gold-400 border-b-gold-400'
+                : 'text-white/40 border-b-transparent hover:text-gold-400/60'
             }`}
           >
             Pasadas
@@ -113,48 +113,50 @@ export default function ReservasPage() {
         </div>
 
         {loading ? (
-          <div className="text-center text-gray-400 py-8">Cargando reservas...</div>
+          <div className="text-center text-white/40 py-12 font-light tracking-wide">Cargando reservas...</div>
         ) : filterReservations(reservations).length === 0 ? (
-          <div className="text-center text-gray-400 py-8">
-            <p>
+          <div className="text-center text-white/40 py-12 space-y-2">
+            <p className="font-light tracking-wide">
               {activeTab === 'upcoming'
                 ? 'No tienes reservas próximas'
                 : 'No tienes reservas pasadas'}
             </p>
-            <p className="text-sm mt-2">Explora nuestras experiencias exclusivas</p>
+            <p className="text-[10px] tracking-widest uppercase text-white/30">Explora nuestras experiencias exclusivas</p>
           </div>
         ) : (
-          filterReservations(reservations).map((reservation) => (
-            <div
-              key={reservation.id}
-              className="bg-[#1a1a1a] border border-white/10 rounded-2xl overflow-hidden"
-            >
-              <img
-                src={reservation.experiences?.image_url}
-                alt={reservation.experiences?.title}
-                className="h-40 w-full object-cover"
-              />
-              <div className="p-4">
-                <span className="text-xs font-medium text-yellow-600 uppercase tracking-widest">
-                  {formatDate(reservation.reservation_date)}
-                </span>
-                <h3 className="text-lg font-bold text-white mt-2 tracking-tight">
-                  {reservation.experiences?.title}
-                </h3>
-                <p className="text-sm text-gray-400 mb-3 font-light">
-                  {reservation.experiences?.destinations?.name}
-                </p>
-                <button
-                  onClick={() =>
-                    alert('Ver detalles: QR, ubicación, información de contacto')
-                  }
-                  className="w-full bg-gray-700 text-white font-medium py-2 rounded-lg text-sm hover:bg-yellow-600 hover:text-black transition-colors tracking-wide"
-                >
-                  Ver Detalles
-                </button>
+          <div className="space-y-5">
+            {filterReservations(reservations).map((reservation) => (
+              <div
+                key={reservation.id}
+                className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden hover:border-gold-400/30 transition-all duration-500"
+              >
+                <img
+                  src={reservation.experiences?.image_url}
+                  alt={reservation.experiences?.title}
+                  className="h-48 w-full object-cover"
+                />
+                <div className="p-6 space-y-4">
+                  <span className="text-[10px] font-medium text-gold-400 uppercase tracking-widest">
+                    {formatDate(reservation.reservation_date)}
+                  </span>
+                  <h3 className="text-lg font-light text-white tracking-wide">
+                    {reservation.experiences?.title}
+                  </h3>
+                  <p className="text-[10px] text-white/40 font-light tracking-widest uppercase">
+                    {reservation.experiences?.destinations?.name}
+                  </p>
+                  <button
+                    onClick={() =>
+                      alert('Ver detalles: QR, ubicación, información de contacto')
+                    }
+                    className="w-full bg-transparent border border-gold-400/40 text-gold-400 hover:bg-gold-400 hover:text-black font-light py-3 rounded-full text-[10px] transition-all duration-500 tracking-widest uppercase"
+                  >
+                    Ver Detalles
+                  </button>
+                </div>
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </main>
     </div>

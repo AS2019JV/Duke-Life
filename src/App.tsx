@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Auth from './components/Auth';
-import PhoneFrame from './components/PhoneFrame';
 import Navigation from './components/Navigation';
 import HomePage from './pages/HomePage';
 import ReservasPage from './pages/ReservasPage';
@@ -26,14 +25,14 @@ function AppContent() {
   }
 
   return (
-    <PhoneFrame>
+    <div className="min-h-screen w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {activePage === 'home' && <HomePage onPageChange={setActivePage} />}
       {activePage === 'reservas' && <ReservasPage />}
       {activePage === 'concierge' && <ConciergePage />}
       {activePage === 'cursos' && <CursosPage />}
       {activePage === 'perfil' && <PerfilPage />}
       <Navigation activePage={activePage} onPageChange={setActivePage} />
-    </PhoneFrame>
+    </div>
   );
 }
 
