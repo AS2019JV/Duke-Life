@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase, Destination, Experience } from '../lib/supabase';
-import ReservationModal from '../components/ReservationModal';
+import { supabase, Destination, Experience, Category } from '../lib/supabase';
+import ExperienceDetailPage from './ExperienceDetailPage';
 
 interface HomePageProps {
   onPageChange: (page: string) => void;
@@ -11,19 +11,22 @@ export default function HomePage({ onPageChange }: HomePageProps) {
   const { user } = useAuth();
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [selectedDestination, setSelectedDestination] = useState<string>('');
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [selectedExperience, setSelectedExperience] = useState<Experience | null>(null);
-  const [showModal, setShowModal] = useState(false);
+  const [showDetailPage, setShowDetailPage] = useState(false);
 
   useEffect(() => {
     fetchDestinations();
+    fetchCategories();
   }, []);
 
   useEffect(() => {
     if (selectedDestination) {
       fetchExperiences();
     }
-  }, [selectedDestination]);
+  }, [selectedDestination, selectedCategory]);
 
   const fetchDestinations = async () => {
     const { data } = await supabase
@@ -39,12 +42,30 @@ export default function HomePage({ onPageChange }: HomePageProps) {
     }
   };
 
-  const fetchExperiences = async () => {
+  const fetchCategories = async () => {
     const { data } = await supabase
+      .from('categories')
+      .select('*')
+      .order('name');
+
+    if (data) {
+      setCategories(data);
+    }
+  };
+
+  const fetchExperiences = async () => {
+    let query = supabase
       .from('experiences')
       .select('*, destinations(*), categories(*)')
       .eq('destination_id', selectedDestination)
       .eq('is_featured', true);
+
+    // Apply category filter if a category is selected
+    if (selectedCategory) {
+      query = query.eq('category_id', selectedCategory);
+    }
+
+    const { data } = await query;
 
     if (data) {
       setExperiences(data);
@@ -70,6 +91,21 @@ export default function HomePage({ onPageChange }: HomePageProps) {
     return { text: `$${exp.gold_price}`, original: exp.base_price };
   };
 
+  if (showDetailPage && selectedExperience) {
+    return (
+      <ExperienceDetailPage
+        experience={selectedExperience}
+        onBack={() => {
+          setShowDetailPage(false);
+          setSelectedExperience(null);
+        }}
+        onReservationCreated={() => {
+          onPageChange('reservas');
+        }}
+      />
+    );
+  }
+
   return (
     <div className="flex-1 overflow-y-auto pb-24">
       <header className="sticky top-0 z-40 bg-black/60 backdrop-blur-xl border-b border-white/5 p-6">
@@ -94,13 +130,130 @@ export default function HomePage({ onPageChange }: HomePageProps) {
 
       <main className="p-6 space-y-10">
         <div>
-          <h2 className="text-xl font-extralight text-gold-400/90 mb-4 tracking-wide">Asistencia Inmediata</h2>
-          <button
-            onClick={() => onPageChange('concierge')}
-            className="w-full bg-gold-400 hover:bg-gold-300 text-black font-medium py-4 rounded-full shadow-lg shadow-gold-900/20 transition-all duration-500 transform hover:scale-[1.02] text-xs tracking-widest uppercase"
-          >
-            Contactar Concierge 24/7
-          </button>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-extralight text-gold-400/90 tracking-wide">Categorías</h2>
+            {selectedCategory && (
+              <button
+                onClick={() => setSelectedCategory('')}
+                className="text-[9px] text-white/40 hover:text-gold-400 font-light tracking-widest uppercase transition-colors"
+              >
+                Ver Todas
+              </button>
+            )}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {/* Bienestar */}
+            <button
+              onClick={() => setSelectedCategory(selectedCategory === categories.find(c => c.name === 'Bienestar')?.id ? '' : categories.find(c => c.name === 'Bienestar')?.id || '')}
+              className={`group relative overflow-hidden rounded-2xl p-6 transition-all duration-500 ${
+                selectedCategory === categories.find(c => c.name === 'Bienestar')?.id
+                  ? 'bg-gradient-to-br from-rose-500/20 to-pink-500/10 border-2 border-rose-400/50 shadow-lg shadow-rose-400/20 scale-[1.02]'
+                  : 'bg-gradient-to-br from-white/10 to-white/5 border border-white/10 hover:border-rose-400/30 hover:scale-[1.02] hover:shadow-lg hover:shadow-rose-400/10'
+              }`}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-rose-400/0 to-pink-400/0 group-hover:from-rose-400/5 group-hover:to-pink-400/5 transition-all duration-500" />
+              <div className="relative flex flex-col items-center gap-3 text-center">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${
+                  selectedCategory === categories.find(c => c.name === 'Bienestar')?.id
+                    ? 'bg-rose-400/30 shadow-lg shadow-rose-400/30'
+                    : 'bg-rose-400/10 group-hover:bg-rose-400/20'
+                }`}>
+                  <svg className="w-7 h-7 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                </div>
+                <span className={`text-xs font-light tracking-wider uppercase transition-colors ${
+                  selectedCategory === categories.find(c => c.name === 'Bienestar')?.id
+                    ? 'text-rose-300'
+                    : 'text-white/90'
+                }`}>Bienestar</span>
+              </div>
+            </button>
+
+            {/* Lujo */}
+            <button
+              onClick={() => setSelectedCategory(selectedCategory === categories.find(c => c.name === 'Lujo')?.id ? '' : categories.find(c => c.name === 'Lujo')?.id || '')}
+              className={`group relative overflow-hidden rounded-2xl p-6 transition-all duration-500 ${
+                selectedCategory === categories.find(c => c.name === 'Lujo')?.id
+                  ? 'bg-gradient-to-br from-gold-500/20 to-amber-500/10 border-2 border-gold-400/50 shadow-lg shadow-gold-400/20 scale-[1.02]'
+                  : 'bg-gradient-to-br from-white/10 to-white/5 border border-white/10 hover:border-gold-400/30 hover:scale-[1.02] hover:shadow-lg hover:shadow-gold-400/10'
+              }`}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-gold-400/0 to-amber-400/0 group-hover:from-gold-400/5 group-hover:to-amber-400/5 transition-all duration-500" />
+              <div className="relative flex flex-col items-center gap-3 text-center">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${
+                  selectedCategory === categories.find(c => c.name === 'Lujo')?.id
+                    ? 'bg-gold-400/30 shadow-lg shadow-gold-400/30'
+                    : 'bg-gold-400/10 group-hover:bg-gold-400/20'
+                }`}>
+                  <svg className="w-7 h-7 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                  </svg>
+                </div>
+                <span className={`text-xs font-light tracking-wider uppercase transition-colors ${
+                  selectedCategory === categories.find(c => c.name === 'Lujo')?.id
+                    ? 'text-gold-300'
+                    : 'text-white/90'
+                }`}>Lujo</span>
+              </div>
+            </button>
+
+            {/* Gastronomía */}
+            <button
+              onClick={() => setSelectedCategory(selectedCategory === categories.find(c => c.name === 'Gastronomía')?.id ? '' : categories.find(c => c.name === 'Gastronomía')?.id || '')}
+              className={`group relative overflow-hidden rounded-2xl p-6 transition-all duration-500 ${
+                selectedCategory === categories.find(c => c.name === 'Gastronomía')?.id
+                  ? 'bg-gradient-to-br from-orange-500/20 to-red-500/10 border-2 border-orange-400/50 shadow-lg shadow-orange-400/20 scale-[1.02]'
+                  : 'bg-gradient-to-br from-white/10 to-white/5 border border-white/10 hover:border-orange-400/30 hover:scale-[1.02] hover:shadow-lg hover:shadow-orange-400/10'
+              }`}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-400/0 to-red-400/0 group-hover:from-orange-400/5 group-hover:to-red-400/5 transition-all duration-500" />
+              <div className="relative flex flex-col items-center gap-3 text-center">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${
+                  selectedCategory === categories.find(c => c.name === 'Gastronomía')?.id
+                    ? 'bg-orange-400/30 shadow-lg shadow-orange-400/30'
+                    : 'bg-orange-400/10 group-hover:bg-orange-400/20'
+                }`}>
+                  <svg className="w-7 h-7 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                  </svg>
+                </div>
+                <span className={`text-xs font-light tracking-wider uppercase transition-colors ${
+                  selectedCategory === categories.find(c => c.name === 'Gastronomía')?.id
+                    ? 'text-orange-300'
+                    : 'text-white/90'
+                }`}>Gastronomía</span>
+              </div>
+            </button>
+
+            {/* Aventura */}
+            <button
+              onClick={() => setSelectedCategory(selectedCategory === categories.find(c => c.name === 'Aventura')?.id ? '' : categories.find(c => c.name === 'Aventura')?.id || '')}
+              className={`group relative overflow-hidden rounded-2xl p-6 transition-all duration-500 ${
+                selectedCategory === categories.find(c => c.name === 'Aventura')?.id
+                  ? 'bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border-2 border-emerald-400/50 shadow-lg shadow-emerald-400/20 scale-[1.02]'
+                  : 'bg-gradient-to-br from-white/10 to-white/5 border border-white/10 hover:border-emerald-400/30 hover:scale-[1.02] hover:shadow-lg hover:shadow-emerald-400/10'
+              }`}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/0 to-teal-400/0 group-hover:from-emerald-400/5 group-hover:to-teal-400/5 transition-all duration-500" />
+              <div className="relative flex flex-col items-center gap-3 text-center">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${
+                  selectedCategory === categories.find(c => c.name === 'Aventura')?.id
+                    ? 'bg-emerald-400/30 shadow-lg shadow-emerald-400/30'
+                    : 'bg-emerald-400/10 group-hover:bg-emerald-400/20'
+                }`}>
+                  <svg className="w-7 h-7 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.871 4A17.926 17.926 0 003 12c0 2.874.673 5.59 1.871 8m14.13 0a17.926 17.926 0 001.87-8c0-2.874-.673-5.59-1.87-8M9 9h1.246a1 1 0 01.961.725l1.586 5.55a1 1 0 00.961.725H15m1-7h-.08a2 2 0 00-1.519.698L9.6 15.302A2 2 0 018.08 16H8" />
+                  </svg>
+                </div>
+                <span className={`text-xs font-light tracking-wider uppercase transition-colors ${
+                  selectedCategory === categories.find(c => c.name === 'Aventura')?.id
+                    ? 'text-emerald-300'
+                    : 'text-white/90'
+                }`}>Aventura</span>
+              </div>
+            </button>
+          </div>
         </div>
 
         <div className="space-y-4">
@@ -123,7 +276,22 @@ export default function HomePage({ onPageChange }: HomePageProps) {
         </div>
 
         <div className="space-y-5">
-          <h2 className="text-xl font-extralight text-gold-400/90 tracking-wide">Experiencias Destacadas</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-extralight text-gold-400/90 tracking-wide">Experiencias Destacadas</h2>
+            {selectedCategory && (
+              <span className={`text-[9px] font-light tracking-widest uppercase px-3 py-1 rounded-full ${
+                selectedCategory === categories.find(c => c.name === 'Bienestar')?.id
+                  ? 'bg-rose-400/20 text-rose-300 border border-rose-400/30'
+                  : selectedCategory === categories.find(c => c.name === 'Lujo')?.id
+                  ? 'bg-gold-400/20 text-gold-300 border border-gold-400/30'
+                  : selectedCategory === categories.find(c => c.name === 'Gastronomía')?.id
+                  ? 'bg-orange-400/20 text-orange-300 border border-orange-400/30'
+                  : 'bg-emerald-400/20 text-emerald-300 border border-emerald-400/30'
+              }`}>
+                {categories.find(c => c.id === selectedCategory)?.name}
+              </span>
+            )}
+          </div>
 
           {experiences.map((exp) => {
             const price = getPrice(exp);
@@ -156,7 +324,7 @@ export default function HomePage({ onPageChange }: HomePageProps) {
                   <button
                     onClick={() => {
                       setSelectedExperience(exp);
-                      setShowModal(true);
+                      setShowDetailPage(true);
                     }}
                     className="w-full bg-transparent border border-gold-400/40 text-gold-400 hover:bg-gold-400 hover:text-black font-light py-3 rounded-full text-[10px] transition-all duration-500 tracking-widest uppercase"
                   >
@@ -168,19 +336,6 @@ export default function HomePage({ onPageChange }: HomePageProps) {
           })}
         </div>
       </main>
-
-      {showModal && selectedExperience && (
-        <ReservationModal
-          experience={selectedExperience}
-          onClose={() => {
-            setShowModal(false);
-            setSelectedExperience(null);
-          }}
-          onReservationCreated={() => {
-            onPageChange('reservas');
-          }}
-        />
-      )}
     </div>
   );
 }

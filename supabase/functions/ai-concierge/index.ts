@@ -1,14 +1,202 @@
 // supabase/functions/ai-concierge/index.ts
-
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import type { SupabaseClient } from 'npm:@supabase/supabase-js@2';
 
-// CORS básico para llamar desde navegador / app
+
 const corsHeaders: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers':
     'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
+
+
+// -----------------------------------------
+// HELPERS NOTIFICACIONES STAFF
+// -----------------------------------------
+
+async function sendWhatsAppText(to: string, body: string): Promise<void> {
+  const version = Deno.env.get('WHATSAPP_API_VERSION') ?? 'v21.0';
+  const phoneNumberId = Deno.env.get('WHATSAPP_PHONE_NUMBER_ID') ?? '';
+  const token = Deno.env.get('WHATSAPP_ACCESS_TOKEN') ?? '';
+
+  if (!phoneNumberId || !token) {
+    console.warn('WhatsApp env vars missing, skipping WhatsApp notification');
+    return;
+  }
+
+  try {
+    const url = `https://graph.facebook.com/${version}/${phoneNumberId}/messages`;
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        to,
+        type: 'text',
+        text: { body },
+      }),
+    });
+
+    if (!res.ok) {
+      const txt = await res.text();
+      console.error('WhatsApp API error', res.status, txt);
+    }
+  } catch (e) {
+    console.error('WhatsApp notification failed', e);
+  }
+}
+
+async function sendEmail(
+  to: string,
+  subject: string,
+  html: string,
+): Promise<void> {
+  const apiKey = Deno.env.get('RESEND_API_KEY') ?? '';
+  const from = Deno.env.get('RESEND_FROM_EMAIL') ?? '';
+
+  if (!apiKey || !from) {
+    console.warn('Resend env vars missing, skipping email notification');
+    return;
+  }
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from,
+        to: [to],
+        subject,
+        html,
+      }),
+    });
+
+    if (!res.ok) {
+      const txt = await res.text();
+      console.error('Resend API error', res.status, txt);
+    }
+  } catch (e) {
+    console.error('Email notification failed', e);
+  }
+}
+
+async function getStaffNotificationTargets(
+  supabaseAdmin: SupabaseClient,
+): Promise<{
+  emails: string[];
+  whatsappNumbers: string[];
+}> {
+  const { data, error } = await supabaseAdmin
+    .from('staff_notification_channels')
+    .select('channel_type, address')
+    .eq('is_active', true);
+
+  if (error) {
+    console.error('Error fetching staff_notification_channels', error);
+    return { emails: [], whatsappNumbers: [] };
+  }
+
+  const emails = data
+    .filter((c) => c.channel_type === 'email')
+    .map((c) => c.address as string);
+
+  const whatsappNumbers = data
+    .filter((c) => c.channel_type === 'whatsapp')
+    .map((c) => c.address as string);
+
+  return { emails, whatsappNumbers };
+}
+
+async function notifyStaffOnHandoff(params: {
+  supabaseAdmin: SupabaseClient;
+  conciergeRequestId: string;
+  conversationId: string;
+  userId: string;
+  userTier: MembershipTier;
+  defaultDestination: string;
+  preferredLanguage: string;
+}) {
+  const {
+    supabaseAdmin,
+    conciergeRequestId,
+    conversationId,
+    userId,
+    userTier,
+    defaultDestination,
+    preferredLanguage,
+  } = params;
+
+  const dashboardUrl = Deno.env.get('APP_DASHBOARD_URL') //??
+    //'https://dukelife.bolt.host/admin';
+
+  // Obtener info básica del usuario (email) y request
+  const [userRes, crRes] = await Promise.all([
+    supabaseAdmin.auth.admin.getUserById(userId),
+    supabaseAdmin
+      .from('concierge_requests')
+      .select('id, category, summary, structured_payload, status, created_at')
+      .eq('id', conciergeRequestId)
+      .maybeSingle(),
+  ]);
+
+  const userEmail = userRes.data?.user?.email ?? '';
+  const cr = crRes.data;
+
+  const { emails, whatsappNumbers } = await getStaffNotificationTargets(
+    supabaseAdmin,
+  );
+
+  if (emails.length === 0 && whatsappNumbers.length === 0) {
+    console.warn('No staff notification channels configured');
+    return;
+  }
+
+  const title = `[DUKE] Nuevo handoff concierge – ${userTier.toUpperCase()} – ${defaultDestination}`;
+  const summary = cr?.summary ?? 'Nueva solicitud del concierge';
+  const createdAt = cr?.created_at ?? new Date().toISOString();
+
+  const link = `${dashboardUrl}/concierge/${conversationId}`;
+
+  const textBody =
+    `Nuevo handoff de concierge:\n\n` +
+    `Tier: ${userTier}\n` +
+    `Destino: ${defaultDestination}\n` +
+    `Idioma: ${preferredLanguage}\n` +
+    (userEmail ? `Email usuario: ${userEmail}\n` : '') +
+    `Resumen: ${summary}\n` +
+    `Creado: ${createdAt}\n` +
+    `Ver en panel: ${link}`;
+
+  const htmlBody =
+    `<p><strong>Nuevo handoff de concierge</strong></p>` +
+    `<ul>` +
+    `<li><strong>Tier:</strong> ${userTier}</li>` +
+    `<li><strong>Destino:</strong> ${defaultDestination}</li>` +
+    `<li><strong>Idioma:</strong> ${preferredLanguage}</li>` +
+    (userEmail ? `<li><strong>Email usuario:</strong> ${userEmail}</li>` : '') +
+    `<li><strong>Resumen:</strong> ${summary}</li>` +
+    `<li><strong>Creado:</strong> ${createdAt}</li>` +
+    `</ul>` +
+    `<p><a href="${link}" target="_blank" rel="noopener noreferrer">Abrir conversación en el panel</a></p>`;
+
+  // Disparar en paralelo, pero sin bloquear el flow principal
+  await Promise.allSettled([
+    ...emails.map((to) => sendEmail(to, title, htmlBody)),
+    ...whatsappNumbers.map((to) => sendWhatsAppText(to, textBody)),
+  ]);
+}
+
+
+//Continua el Code
+
 
 type MembershipTier = 'gold' | 'platinum' | 'black_elite';
 
@@ -27,14 +215,59 @@ interface AiConciergeResult {
   confidence: number;
   summary: string;
   structured_payload: Record<string, unknown> | null;
-  // opcionalmente puedes extender con más campos (reason, destination_slug, etc.)
 }
 
 interface RequestBody {
   conversationId?: string;
   message: string;
-  // opcionalmente podrías mandar destinationSlug, locale, etc.
 }
+
+type ResponseFormat = 'json' | 'text';
+
+interface AiConciergeConfig {
+  id: string;
+  name: string;
+  is_active: boolean;
+  model: string;
+  temperature: number;
+  top_p: number | null;
+  max_tokens: number | null;
+  response_format: ResponseFormat;
+  system_prompt_template: string;
+}
+
+function sanitizeNumber(
+  value: unknown,
+  min: number,
+  max: number,
+  fallback: number,
+): number {
+  const n = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.min(Math.max(n, min), max);
+}
+
+function sanitizeMaxTokens(value: unknown, fallback?: number): number | undefined {
+  const n = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(n) || n <= 0) return fallback;
+  return Math.floor(n);
+}
+
+// Simple templating: reemplaza {{key}} por string
+function renderTemplate(
+  template: string,
+  variables: Record<string, string>,
+): string {
+  return Object.entries(variables).reduce((acc, [key, value]) => {
+    const re = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
+    return acc.replace(re, value);
+  }, template);
+}
+
+// Mensaje genérico de fallback (por si OpenAI está caído o algo sale mal)
+const FALLBACK_ASSISTANT_MESSAGE =
+  'En este momento no puedo procesar tu solicitud. ' +
+  'Un concierge de Duke Life te ayudará en breve.';
 
 Deno.serve(async (req: Request): Promise<Response> => {
   if (req.method === 'OPTIONS') {
@@ -71,18 +304,17 @@ Deno.serve(async (req: Request): Promise<Response> => {
     }
     const jwt = authHeader.replace('Bearer ', '');
 
-    // Client con contexto del usuario (RLS ON)
+    // Clients
     const supabaseUserClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
       auth: { persistSession: false },
     });
 
-    // Client admin (service role) para operaciones privilegiadas
     const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
       auth: { persistSession: false },
     });
 
-    // Obtener usuario autenticado
+    // Usuario autenticado
     const {
       data: { user },
       error: userError,
@@ -96,7 +328,6 @@ Deno.serve(async (req: Request): Promise<Response> => {
       });
     }
 
-    // Parsear body
     const body = (await req.json()) as RequestBody;
     if (!body.message || typeof body.message !== 'string') {
       return new Response(
@@ -111,7 +342,69 @@ Deno.serve(async (req: Request): Promise<Response> => {
     const userId = user.id;
     let conversationId = body.conversationId ?? null;
 
-    // 1) Obtener tier de membresía y perfil para contexto
+    // 1) Cargar configuración de AI concierge (última activa)
+    let config: AiConciergeConfig | null = null;
+    {
+      const { data: cfg, error: cfgError } = await supabaseAdmin
+        .from('ai_concierge_configs')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (cfgError) {
+        console.error('Error fetching ai_concierge_config', cfgError);
+      } else if (cfg) {
+        config = cfg as AiConciergeConfig;
+      }
+    }
+
+    const model = config?.model || 'gpt-4o';
+    const temperature = sanitizeNumber(config?.temperature, 0, 1, 0.3);
+    const topP =
+      config?.top_p != null ? sanitizeNumber(config.top_p, 0, 1, 1) : undefined;
+    const maxTokens = sanitizeMaxTokens(config?.max_tokens, undefined);
+    const responseFormat: ResponseFormat = config?.response_format || 'json';
+
+    const defaultSystemPromptTemplate = `
+Eres el concierge de lujo de Duke Life.
+
+Contexto:
+- Membership tier del usuario: {{membership_tier}}
+- Idioma preferido: {{preferred_language}}
+- Destino por defecto: {{default_destination}}
+- ID del usuario: {{user_id}}
+
+Objetivo:
+1. Contestar amablemente, en lenguaje claro, como concierge de alto nivel.
+2. Identificar la intención principal del mensaje (intents predefinidos).
+3. Decidir si la IA puede resolver sola o necesita humano.
+4. Devolver SIEMPRE un JSON con esta estructura, sin texto adicional:
+
+{
+  "assistant_reply": "texto que verá el usuario",
+  "intent": "reservation | upgrade | transport | recommendation | issue | other",
+  "needs_human": true/false,
+  "confidence": 0.0-1.0,
+  "summary": "resumen corto de lo que pide",
+  "structured_payload": {
+    "date": "YYYY-MM-DD o null",
+    "time": "HH:mm o null",
+    "people": número o null,
+    "budget": número o null,
+    "destination": "slug destino o null",
+    "notes": "texto libre"
+  }
+}
+
+No incluyas nada fuera del JSON. No uses Markdown. No uses comentarios.
+`.trim();
+
+    const templateToUse =
+      config?.system_prompt_template?.trim() || defaultSystemPromptTemplate;
+
+    // 2) Tier y perfil para rellenar variables del prompt
     const { data: membership } = await supabaseUserClient
       .from('memberships')
       .select('tier, status')
@@ -127,8 +420,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
       .eq('id', userId)
       .maybeSingle();
 
-    const defaultDestination = (profile?.default_destination as string | null) ?? null;
-    const preferredLanguage = (profile?.preferred_language as 'es' | 'en' | null) ?? 'es';
+    const defaultDestination =
+      (profile?.default_destination as string | null) ?? 'no_definido';
+    const preferredLanguage =
+      (profile?.preferred_language as 'es' | 'en' | null) ?? 'es';
 
     const priorityByTier: Record<MembershipTier, number> = {
       gold: 1,
@@ -137,7 +432,14 @@ Deno.serve(async (req: Request): Promise<Response> => {
     };
     const priority = priorityByTier[userTier];
 
-    // 2) Crear conversación si no existe
+    const systemPrompt = renderTemplate(templateToUse, {
+      membership_tier: userTier,
+      preferred_language: preferredLanguage,
+      default_destination: defaultDestination,
+      user_id: userId,
+    });
+
+    // 3) Crear conversación si no existe
     if (!conversationId) {
       const { data: newConv, error: convError } = await supabaseAdmin
         .from('conversations')
@@ -162,7 +464,6 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
       conversationId = newConv.id as string;
     } else {
-      // Validar que la conversación pertenezca a este usuario
       const { data: conv, error: convFetchError } = await supabaseAdmin
         .from('conversations')
         .select('id, user_id')
@@ -178,7 +479,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       }
     }
 
-    // 3) Insertar mensaje del usuario (RLS ON)
+    // 4) Insertar mensaje del usuario
     const { error: insertUserMsgError } = await supabaseUserClient
       .from('messages')
       .insert({
@@ -198,7 +499,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    // 4) Cargar historial de conversación (últimos N mensajes)
+    // 5) Historial de conversación (últimos N mensajes)
     const { data: history, error: historyError } = await supabaseUserClient
       .from('messages')
       .select('sender_type, content, created_at')
@@ -217,109 +518,83 @@ Deno.serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    // 5) Preparar mensajes para GPT-4o
+    // 6) Preparar mensajes para OpenAI
     const chatMessages = [
       {
         role: 'system' as const,
-        content: `
-Eres el concierge de lujo de Duke Life.
-
-Contexto:
-- Membership tier del usuario: ${userTier}
-- Idioma preferido: ${preferredLanguage}
-- Destino por defecto: ${defaultDestination ?? 'no definido'}
-
-Objetivo:
-1. Contestar amablemente, en lenguaje claro, como concierge de alto nivel.
-2. Identificar la intención principal del mensaje (intents predefinidos).
-3. Decidir si la IA puede resolver sola o necesita humano.
-4. Devolver SIEMPRE un JSON con esta estructura, sin texto adicional:
-
-{
-  "assistant_reply": "texto que verá el usuario",
-  "intent": "reservation | upgrade | transport | recommendation | issue | other",
-  "needs_human": true/false,
-  "confidence": 0.0-1.0,
-  "summary": "resumen corto de lo que pide",
-  "structured_payload": {
-    "date": "YYYY-MM-DD o null",
-    "time": "HH:mm o null",
-    "people": número o null,
-    "budget": número o null,
-    "destination": "slug destino o null",
-    "notes": "texto libre"
-  }
-}
-
-No incluyas nada fuera del JSON. No uses comentarios. No uses Markdown.
-        `.trim(),
+        content: systemPrompt,
       },
-      // Historial de la conversación como user/assistant
       ...history.map((m) => ({
         role:
           m.sender_type === 'user'
             ? ('user' as const)
-            : ('assistant' as const), // ai + human los tratamos como assistant
+            : ('assistant' as const),
         content: m.content,
       })),
     ];
 
-    // 6) Llamar a OpenAI GPT-4o
-    const openaiRes = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${openaiApiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: chatMessages,
-        temperature: 0.3,
-      }),
-    });
-
-    if (!openaiRes.ok) {
-      const errorText = await openaiRes.text();
-      console.error('OpenAI error', openaiRes.status, errorText);
-      return new Response(
-        JSON.stringify({ error: 'OpenAI request failed' }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        },
-      );
-    }
-
-    const openaiJson = await openaiRes.json();
-    const content =
-      openaiJson.choices?.[0]?.message?.content?.toString() ?? '';
-
-    let parsed: AiConciergeResult;
+    // 7) Llamar a OpenAI con configuración dinámica
+    let parsed: AiConciergeResult | null = null;
 
     try {
-      // limpiar si viniera con ```json ... ```
-      const clean = content
-        .trim()
-        .replace(/^```json\s*/i, '')
-        .replace(/^```/, '')
-        .replace(/```$/, '')
-        .trim();
+      const bodyReq: Record<string, unknown> = {
+        model,
+        messages: chatMessages,
+        temperature,
+      };
 
-      parsed = JSON.parse(clean) as AiConciergeResult;
+      if (topP !== undefined) bodyReq.top_p = topP;
+      if (maxTokens !== undefined) bodyReq.max_tokens = maxTokens;
+      if (responseFormat === 'json') {
+        bodyReq.response_format = { type: 'json_object' };
+      }
+
+      const openaiRes = await fetch(
+        'https://api.openai.com/v1/chat/completions',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${openaiApiKey}`,
+          },
+          body: JSON.stringify(bodyReq),
+        },
+      );
+
+      if (!openaiRes.ok) {
+        const errorText = await openaiRes.text();
+        console.error('OpenAI error', openaiRes.status, errorText);
+        // caeremos al fallback
+      } else {
+        const openaiJson = await openaiRes.json();
+        const content =
+          openaiJson.choices?.[0]?.message?.content?.toString() ?? '';
+
+        const clean = content
+          .trim()
+          .replace(/^```json\s*/i, '')
+          .replace(/^```/, '')
+          .replace(/```$/, '')
+          .trim();
+
+        parsed = JSON.parse(clean) as AiConciergeResult;
+      }
     } catch (e) {
-      console.error('Error parsing AI JSON, using fallback', e, content);
+      console.error('Error calling/parsing OpenAI', e);
+      // parsed seguirá null → usaremos fallback
+    }
+
+    if (!parsed) {
       parsed = {
-        assistant_reply:
-          'En este momento no puedo procesar tu solicitud, pero un concierge humano te apoyará en breve.',
+        assistant_reply: FALLBACK_ASSISTANT_MESSAGE,
         intent: 'other',
         needs_human: true,
         confidence: 0,
-        summary: 'Fallo al parsear respuesta de IA',
+        summary: 'Fallo de IA, escalado automático a concierge humano',
         structured_payload: null,
       };
     }
 
-    // Normalizar algunos campos
     const intent: AiIntent =
       ['reservation', 'upgrade', 'transport', 'recommendation', 'issue'].includes(
         parsed.intent,
@@ -334,8 +609,7 @@ No incluyas nada fuera del JSON. No uses comentarios. No uses Markdown.
         : 0.5;
 
     const assistantReply =
-      parsed.assistant_reply ||
-      'Estoy aquí para ayudarte con tus experiencias. ¿Qué necesitas exactamente?';
+      parsed.assistant_reply || FALLBACK_ASSISTANT_MESSAGE;
 
     const summary =
       parsed.summary ||
@@ -346,7 +620,7 @@ No incluyas nada fuera del JSON. No uses comentarios. No uses Markdown.
         ? parsed.structured_payload
         : null;
 
-    // 7) Insertar mensaje del AI (admin client, sin RLS)
+    // 8) Insertar mensaje de la IA
     const { error: insertAiMsgError } = await supabaseAdmin
       .from('messages')
       .insert({
@@ -358,10 +632,10 @@ No incluyas nada fuera del JSON. No uses comentarios. No uses Markdown.
 
     if (insertAiMsgError) {
       console.error('Error inserting AI message', insertAiMsgError);
-      // seguimos, pero el front no verá el mensaje en realtime
+      // seguimos igual, el front se puede enterar por la respuesta directa
     }
 
-    // 8) Crear / actualizar concierge_request
+    // 9) Crear / actualizar concierge_request
     const { data: existingRequest } = await supabaseAdmin
       .from('concierge_requests')
       .select('id, status')
@@ -371,16 +645,13 @@ No incluyas nada fuera del JSON. No uses comentarios. No uses Markdown.
       .limit(1)
       .maybeSingle();
 
-    // SLA según tier
     const baseSlaMinutes =
       userTier === 'black_elite' ? 10 : userTier === 'platinum' ? 20 : 30;
     const slaDeadline = needsHuman
       ? new Date(Date.now() + baseSlaMinutes * 60 * 1000).toISOString()
       : null;
 
-    const conciergeStatus = needsHuman
-      ? 'pending_human'
-      : 'pending_ai'; // para reporting
+    const conciergeStatus = needsHuman ? 'pending_human' : 'pending_ai';
 
     let conciergeRequestId: string | null = null;
 
@@ -428,15 +699,17 @@ No incluyas nada fuera del JSON. No uses comentarios. No uses Markdown.
       }
     }
 
-    // 9) Si necesita humano → handoff + marcar conversación
+    // 10) Handoff a humano si hace falta
     if (needsHuman && conciergeRequestId) {
-      const { error: handoffError } = await supabaseAdmin
+      const { data: handoffData, error: handoffError } = await supabaseAdmin
         .from('handoffs')
         .insert({
           concierge_request_id: conciergeRequestId,
           triggered_by: 'ai',
           reason: 'needs_human_or_low_confidence',
-        });
+        })
+        .select('id')
+        .single();
 
       if (handoffError) {
         console.error('Error inserting handoff', handoffError);
@@ -455,8 +728,20 @@ No incluyas nada fuera del JSON. No uses comentarios. No uses Markdown.
         console.error('Error updating conversation status', updateConvError);
       }
 
-      // Aquí es donde podrías llamar a otro Edge Function / n8n
-      // para notificar al staff (Slack, email, WhatsApp, etc.)
+      // 🔔 NOTIFICAR AL STAFF (no bloqueamos si falla)
+      if (conciergeRequestId) {
+        notifyStaffOnHandoff({
+          supabaseAdmin,
+          conciergeRequestId,
+          conversationId,
+          userId,
+          userTier,
+          defaultDestination,
+          preferredLanguage,
+        }).catch((e) =>
+          console.error('notifyStaffOnHandoff failed (non-blocking)', e)
+        );
+      }
     } else {
       // Mantener conversación activa
       await supabaseAdmin
@@ -469,7 +754,7 @@ No incluyas nada fuera del JSON. No uses comentarios. No uses Markdown.
         .eq('id', conversationId);
     }
 
-    // 10) Respuesta para el cliente
+    // 11) Respuesta al cliente
     const responseBody = {
       conversationId,
       assistant_reply: assistantReply,
@@ -485,8 +770,13 @@ No incluyas nada fuera del JSON. No uses comentarios. No uses Markdown.
     });
   } catch (e) {
     console.error('Unhandled error in ai-concierge', e);
+    // Fallback duro: mandamos a humano
     return new Response(
-      JSON.stringify({ error: 'Unexpected error in ai-concierge' }),
+      JSON.stringify({
+        error: 'Unexpected error in ai-concierge',
+        assistant_reply: FALLBACK_ASSISTANT_MESSAGE,
+        needs_human: true,
+      }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

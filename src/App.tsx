@@ -14,8 +14,30 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-yellow-600 text-xl font-bold">Cargando...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-black to-gray-900">
+        <div className="text-center">
+          <h1 
+            className="text-5xl md:text-7xl font-extralight tracking-[0.15em] text-gold-400 mb-8"
+            style={{
+              textShadow: '0 0 40px rgba(251, 191, 36, 0.3)'
+            }}
+          >
+            DUKE LIFE
+          </h1>
+          
+          <div className="flex items-center justify-center gap-4">
+            <div className="h-px w-12 bg-gradient-to-r from-transparent via-gold-400/60 to-gold-400/40"></div>
+            <p 
+              className="text-gold-300 text-xs tracking-[0.5em] font-light uppercase animate-pulse"
+              style={{
+                textShadow: '0 0 20px rgba(251, 191, 36, 0.4)'
+              }}
+            >
+              Cargando
+            </p>
+            <div className="h-px w-12 bg-gradient-to-l from-transparent via-gold-400/60 to-gold-400/40"></div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -36,12 +58,10 @@ function AppContent() {
   );
 }
 
-function App() {
+export default function App() {
   return (
     <AuthProvider>
       <AppContent />
     </AuthProvider>
   );
 }
-
-export default App;

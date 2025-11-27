@@ -137,17 +137,16 @@ export default function Auth() {
             <form onSubmit={handleLogin} className="space-y-10 animate-fadeIn">
               {/* Password Section with decorative lines */}
               <div className="space-y-6">
-                <div className="flex items-center justify-between mb-6">
+                <div className="mb-6">
                   <button 
                     type="button"
                     onClick={() => setStep(1)}
-                    className="text-xs text-white/50 hover:text-gold-400 flex items-center gap-1 transition-colors uppercase tracking-wider font-medium"
+                    className="text-white/50 hover:text-gold-400 transition-colors mb-6"
                   >
                     <ChevronLeft className="w-4 h-4" />
-                    Volver
                   </button>
-                  <div className="flex items-center gap-3">
-                    <div className="h-px w-8 bg-gradient-to-r from-transparent to-gold-400/40"></div>
+                  <div className="flex items-center gap-4">
+                    <div className="h-px flex-1 bg-gradient-to-r from-transparent to-gold-400/30"></div>
                     <span 
                       className="text-xs font-medium text-gold-300 uppercase tracking-[0.3em]"
                       style={{
@@ -156,7 +155,7 @@ export default function Auth() {
                     >
                       Contraseña
                     </span>
-                    <div className="h-px w-8 bg-gradient-to-l from-transparent to-gold-400/40"></div>
+                    <div className="h-px flex-1 bg-gradient-to-l from-transparent to-gold-400/30"></div>
                   </div>
                 </div>
                 <input

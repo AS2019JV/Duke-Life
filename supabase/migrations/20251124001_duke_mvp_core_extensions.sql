@@ -986,3 +986,181 @@ values
   ('qr-codes',    'qr-codes',    true),
   ('avatars',     'avatars',     true)
 on conflict (id) do nothing;
+
+
+
+
+-- =========================================================
+-- DUKE LIFE – AI CONCIERGE CONFIG (ADMIN-EDITABLE)
+-- =========================================================
+-- supabase/migrations/20251125002_ai_concierge_configs.sql
+
+
+
+-- 1. ENUM PARA FORMATO DE RESPUESTA (JSON O TEXTO)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'ai_concierge_response_format_enum') THEN
+    CREATE TYPE ai_concierge_response_format_enum AS ENUM ('json','text');
+  END IF;
+END $$;
+
+
+-- 2. TABLA DE CONFIGURACIÓN DEL CONCIERGE
+CREATE TABLE IF NOT EXISTS ai_concierge_configs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL,                         -- Nombre visible en el panel
+  is_active boolean NOT NULL DEFAULT true,    -- Solo se lee la config activa más reciente
+  model text NOT NULL DEFAULT 'gpt-4o',       -- Modelo OpenAI
+  temperature numeric(3,2) NOT NULL DEFAULT 0.30,
+  top_p numeric(3,2),                         -- Opcional, 0.0 - 1.0
+  max_tokens integer,                         -- Opcional, ej. 512, 1024...
+  response_format ai_concierge_response_format_enum NOT NULL DEFAULT 'json',
+  system_prompt_template text NOT NULL,       -- Prompt con variables {{membership_tier}}, etc.
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE ai_concierge_configs ENABLE ROW LEVEL SECURITY;
+
+
+-- 3. POLÍTICAS DE RLS
+--    a) Solo staff/admin pueden crear/editar configs
+--    b) Cualquiera autenticado puede ver la config activa (por si algún día la usas client-side)
+CREATE POLICY "Staff/admin manage ai_concierge_configs"
+  ON ai_concierge_configs
+  FOR ALL
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles p
+      WHERE p.id = auth.uid()
+        AND p.role IN ('staff','admin')
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM profiles p
+      WHERE p.id = auth.uid()
+        AND p.role IN ('staff','admin')
+    )
+  );
+
+CREATE POLICY "Anyone can read active ai_concierge_configs"
+  ON ai_concierge_configs
+  FOR SELECT
+  TO authenticated
+  USING (is_active = true);
+
+
+-- 4. CONFIG POR DEFECTO (SOLO SI LA TABLA ESTÁ VACÍA)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM ai_concierge_configs) THEN
+    INSERT INTO ai_concierge_configs (
+      name,
+      is_active,
+      model,
+      temperature,
+      response_format,
+      system_prompt_template
+    )
+    VALUES (
+      'Default Duke Life Concierge',
+      true,
+      'gpt-4o',
+      0.30,
+      'json',
+      $PROMPT$
+Eres el concierge de lujo oficial de Duke Life.
+
+Variables de contexto:
+- membership_tier: {{membership_tier}}
+- preferred_language: {{preferred_language}}
+- default_destination: {{default_destination}}
+- user_id: {{user_id}}
+
+Tu misión:
+1. Responder siempre con el tono de un concierge de hotel 5★ / lifestyle manager.
+2. Pensar en experiencias y servicios premium, especialmente para el destino del usuario.
+3. Hacer preguntas inteligentes si falta información clave antes de proponer algo.
+4. Decidir si la IA puede resolver sola o si se necesita un concierge humano.
+
+Formato de salida:
+Debes responder SIEMPRE con un JSON válido, sin texto adicional, sin Markdown, sin comentarios.
+Estructura EXACTA:
+
+{
+  "assistant_reply": "texto que verá el usuario (en el idioma correcto)",
+  "intent": "reservation | upgrade | transport | recommendation | issue | other",
+  "needs_human": true o false,
+  "confidence": número entre 0.0 y 1.0,
+  "summary": "resumen corto de lo que pide",
+  "structured_payload": {
+    "date": "YYYY-MM-DD o null",
+    "time": "HH:mm o null",
+    "people": número o null,
+    "budget": número o null,
+    "destination": "slug del destino o null",
+    "notes": "texto adicional o null"
+  }
+}
+
+No incluyas nada fuera del JSON. No uses Markdown. No expliques el formato.
+$PROMPT$
+    );
+  END IF;
+END $$;
+
+
+
+-- =========================================================
+-- DUKE LIFE – STAFF NOTIFICATION CHANNELS
+-- =========================================================
+--supabase/migrations/20251125003_staff_notification_channels.sql
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type WHERE typname = 'staff_notification_channel_type_enum'
+  ) THEN
+    CREATE TYPE staff_notification_channel_type_enum AS ENUM (
+      'email',
+      'whatsapp',
+      'slack',
+      'notion',
+      'other'
+    );
+  END IF;
+END $$;
+
+CREATE TABLE IF NOT EXISTS staff_notification_channels (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  profile_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  channel_type staff_notification_channel_type_enum NOT NULL,
+  address text NOT NULL,     -- email, teléfono, webhook, etc.
+  description text,
+  is_active boolean NOT NULL DEFAULT true,
+  created_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE staff_notification_channels ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Staff/admin manage staff_notification_channels"
+  ON staff_notification_channels
+  FOR ALL
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles p
+      WHERE p.id = auth.uid()
+        AND p.role IN ('staff','admin')
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM profiles p
+      WHERE p.id = auth.uid()
+        AND p.role IN ('staff','admin')
+    )
+  );
