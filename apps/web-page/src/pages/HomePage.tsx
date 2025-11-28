@@ -16,7 +16,9 @@ export default function HomePage({ onPageChange }: HomePageProps) {
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [selectedExperience, setSelectedExperience] = useState<Experience | null>(null);
   const [showDetailPage, setShowDetailPage] = useState(false);
+  const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
   const experiencesRef = useRef<HTMLDivElement>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchDestinations();
@@ -150,73 +152,106 @@ export default function HomePage({ onPageChange }: HomePageProps) {
           </div>
           
           
-          {/* Categories Carousel with Center Focus */}
-          <div 
-            className="relative flex justify-center items-center overflow-x-auto pb-8 -mx-6 px-6 no-scrollbar snap-x snap-mandatory scroll-smooth touch-pan-x"
-            style={{ WebkitOverflowScrolling: 'touch' }}
-          >
+          {/* Simplified Swipeable Carousel */}
+          <div className="relative w-full pb-8">
             {/* Left fade overlay */}
-            <div className="absolute left-0 top-0 bottom-8 w-20 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none" />
+            <div className="absolute left-0 top-0 bottom-8 w-16 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none" />
             
-            {categories.map((category, index) => {
-              const categoryImages: Record<string, string> = {
-                'Bienestar': 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&q=80&w=800',
-                'Lujo': 'https://images.unsplash.com/photo-1565623833408-d77e39b88af6?auto=format&fit=crop&q=80&w=800',
-                'Gastronomía': 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=800',
-                'Aventura': 'https://images.unsplash.com/photo-1533692328991-08159ff19fca?auto=format&fit=crop&q=80&w=800'
-              };
-
-              const isSelected = selectedCategory === category.id;
-              const isCenterFocused = index === Math.floor(categories.length / 2);
-              
-              return (
-                <button
-                  key={category.id}
-                  onClick={() => {
-                    setSelectedCategory(isSelected ? '' : category.id);
-                    // Smooth scroll to experiences section
-                    setTimeout(() => {
-                      experiencesRef.current?.scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'start' 
-                      });
-                    }, 300);
-                  }}
-                  className={`relative flex-shrink-0 rounded-xl overflow-hidden transition-all duration-500 snap-center group ${
-                    isCenterFocused
-                      ? 'w-48 h-64 mx-2'
-                      : 'w-40 h-56 mx-1 opacity-40 hover:opacity-70'
-                  } ${
-                    isSelected 
-                      ? 'ring-2 ring-gold-400 scale-105 shadow-xl shadow-gold-900/40 opacity-100' 
-                      : 'hover:scale-105 hover:shadow-lg hover:shadow-black/50'
-                  }`}
-                >
-                  <img 
-                    src={categoryImages[category.name] || 'https://images.unsplash.com/photo-1518182170546-0766aa6f6a56?auto=format&fit=crop&q=80&w=800'} 
-                    alt={category.name}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent transition-opacity duration-500 ${
-                    isSelected ? 'opacity-90' : 'opacity-60 group-hover:opacity-80'
-                  }`} />
+            <div 
+              ref={carouselRef}
+              className="flex items-center justify-center gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth touch-pan-x px-4"
+              style={{ WebkitOverflowScrolling: 'touch' }}
+              onScroll={(e) => {
+                const container = e.currentTarget;
+                const scrollLeft = container.scrollLeft;
+                const containerWidth = container.offsetWidth;
+                const centerPosition = scrollLeft + containerWidth / 2;
+                
+                // Find which category is closest to center
+                let closestIndex = 0;
+                let minDistance = Infinity;
+                
+                Array.from(container.children).forEach((child, idx) => {
+                  if (idx === 0 || idx === container.children.length - 1) return; // Skip fade overlays
+                  const element = child as HTMLElement;
+                  const elementCenter = element.offsetLeft + element.offsetWidth / 2;
+                  const distance = Math.abs(centerPosition - elementCenter);
                   
-                  <div className="absolute inset-0 flex flex-col justify-end p-4">
-                    <span className={`text-sm font-medium tracking-widest uppercase text-center transition-colors duration-300 ${
-                      isSelected ? 'text-gold-400' : 'text-white group-hover:text-gold-200'
-                    }`}>
-                      {category.name}
-                    </span>
-                    {isSelected && (
-                      <div className="w-1 h-1 bg-gold-400 rounded-full mx-auto mt-2 animate-pulse" />
-                    )}
-                  </div>
-                </button>
-              );
-            })}
+                  if (distance < minDistance) {
+                    minDistance = distance;
+                    closestIndex = idx - 1; // Adjust for fade overlay
+                  }
+                });
+                
+                if (closestIndex !== activeCategoryIndex && categories[closestIndex]) {
+                  setActiveCategoryIndex(closestIndex);
+                  setSelectedCategory(categories[closestIndex].id);
+                }
+              }}
+            >
+              {categories.map((category, index) => {
+                const categoryImages: Record<string, string> = {
+                  'Bienestar': 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&q=80&w=800',
+                  'Lujo': 'https://images.unsplash.com/photo-1565623833408-d77e39b88af6?auto=format&fit=crop&q=80&w=800',
+                  'Gastronomía': 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=800',
+                  'Aventura': 'https://images.unsplash.com/photo-1533692328991-08159ff19fca?auto=format&fit=crop&q=80&w=800'
+                };
+
+                const isCenter = index === activeCategoryIndex;
+                
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => {
+                      setActiveCategoryIndex(index);
+                      setSelectedCategory(category.id);
+                      
+                      // Scroll this card to center
+                      const button = carouselRef.current?.children[index + 1] as HTMLElement;
+                      if (button) {
+                        button.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                      }
+                      
+                      // Smooth scroll to experiences section
+                      setTimeout(() => {
+                        experiencesRef.current?.scrollIntoView({ 
+                          behavior: 'smooth', 
+                          block: 'start' 
+                        });
+                      }, 300);
+                    }}
+                    className={`relative flex-shrink-0 rounded-2xl overflow-hidden transition-all duration-500 snap-center ${
+                      isCenter
+                        ? 'w-64 h-80 opacity-100 scale-100 shadow-2xl shadow-gold-900/40 ring-2 ring-gold-400'
+                        : 'w-48 h-64 opacity-50 scale-90 hover:opacity-75'
+                    }`}
+                  >
+                    <img 
+                      src={categoryImages[category.name] || 'https://images.unsplash.com/photo-1518182170546-0766aa6f6a56?auto=format&fit=crop&q=80&w=800'} 
+                      alt={category.name}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent transition-opacity duration-500 ${
+                      isCenter ? 'opacity-90' : 'opacity-70'
+                    }`} />
+                    
+                    <div className="absolute inset-0 flex flex-col justify-end p-6">
+                      <span className={`text-base font-bold tracking-widest uppercase text-center transition-all duration-300 ${
+                        isCenter ? 'text-gold-400 text-lg' : 'text-white text-sm'
+                      }`}>
+                        {category.name}
+                      </span>
+                      {isCenter && (
+                        <div className="w-1.5 h-1.5 bg-gold-400 rounded-full mx-auto mt-3 animate-pulse" />
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
             
             {/* Right fade overlay */}
-            <div className="absolute right-0 top-0 bottom-8 w-20 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-8 w-16 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none" />
           </div>
         </div>
 
@@ -228,7 +263,7 @@ export default function HomePage({ onPageChange }: HomePageProps) {
             <div className="flex items-center gap-4 mb-3">
               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold-400/30 to-gold-300/20" />
               <h2 className="text-2xl font-light text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-gold-400 to-gold-300 tracking-[0.15em] uppercase">
-                Experiencias Destacadas
+                Experiencias
               </h2>
               <div className="h-px flex-1 bg-gradient-to-r from-gold-300/20 via-gold-400/30 to-transparent" />
             </div>
