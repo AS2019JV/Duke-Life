@@ -19,6 +19,40 @@ export default function HomePage({ onPageChange }: HomePageProps) {
   const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
   const experiencesRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef({ startX: 0, currentX: 0, isDragging: false });
+
+  const handleDragStart = (clientX: number) => {
+    dragRef.current = { startX: clientX, currentX: clientX, isDragging: true };
+  };
+
+  const handleDragMove = (clientX: number) => {
+    if (!dragRef.current.isDragging) return;
+    dragRef.current.currentX = clientX;
+  };
+
+  const handleDragEnd = () => {
+    if (!dragRef.current.isDragging) return;
+    dragRef.current.isDragging = false;
+    
+    const diff = dragRef.current.currentX - dragRef.current.startX;
+    
+    if (Math.abs(diff) > 50) { // Threshold for swipe
+      if (diff > 0) {
+        // Swipe Right -> Previous
+        setActiveCategoryIndex((prev) => (prev - 1 + categories.length) % categories.length);
+      } else {
+        // Swipe Left -> Next
+        setActiveCategoryIndex((prev) => (prev + 1) % categories.length);
+      }
+      
+      // Update selected category
+      const newIndex = diff > 0 
+        ? (activeCategoryIndex - 1 + categories.length) % categories.length
+        : (activeCategoryIndex + 1) % categories.length;
+      
+      setSelectedCategory(categories[newIndex].id);
+    }
+  };
 
   useEffect(() => {
     fetchDestinations();
@@ -152,51 +186,18 @@ export default function HomePage({ onPageChange }: HomePageProps) {
           </div>
           
           
+          
           {/* Coverflow Style Carousel */}
           <div className="relative w-full h-[400px] flex justify-center items-center overflow-hidden">
             <div 
-              className="relative w-full h-full flex justify-center items-center perspective-1000"
-              onTouchStart={(e) => {
-                const touch = e.touches[0];
-                carouselRef.current = { startX: touch.clientX, lastX: touch.clientX } as any;
-              }}
-              onTouchMove={(e) => {
-                if (!carouselRef.current) return;
-                const touch = e.touches[0];
-                const diff = touch.clientX - (carouselRef.current as any).startX;
-                // Optional: Add some drag resistance or visual feedback here
-              }}
-              onTouchEnd={(e) => {
-                if (!carouselRef.current) return;
-                const touch = e.changedTouches[0];
-                const diff = touch.clientX - (carouselRef.current as any).startX;
-                
-                if (Math.abs(diff) > 50) { // Threshold for swipe
-                  if (diff > 0) {
-                    // Swipe Right -> Previous
-                    setActiveCategoryIndex((prev) => (prev - 1 + categories.length) % categories.length);
-                  } else {
-                    // Swipe Left -> Next
-                    setActiveCategoryIndex((prev) => (prev + 1) % categories.length);
-                  }
-                  
-                  // Update selected category
-                  const newIndex = diff > 0 
-                    ? (activeCategoryIndex - 1 + categories.length) % categories.length
-                    : (activeCategoryIndex + 1) % categories.length;
-                  
-                  setSelectedCategory(categories[newIndex].id);
-                  
-                  // Smooth scroll to experiences
-                  setTimeout(() => {
-                    experiencesRef.current?.scrollIntoView({ 
-                      behavior: 'smooth', 
-                      block: 'start' 
-                    });
-                  }, 300);
-                }
-                carouselRef.current = null;
-              }}
+              className="relative w-full h-full flex justify-center items-center perspective-1000 cursor-grab active:cursor-grabbing"
+              onTouchStart={(e) => handleDragStart(e.touches[0].clientX)}
+              onTouchMove={(e) => handleDragMove(e.touches[0].clientX)}
+              onTouchEnd={handleDragEnd}
+              onMouseDown={(e) => handleDragStart(e.clientX)}
+              onMouseMove={(e) => handleDragMove(e.clientX)}
+              onMouseUp={handleDragEnd}
+              onMouseLeave={handleDragEnd}
             >
               {categories.map((category, index) => {
                 const categoryImages: Record<string, string> = {
@@ -215,32 +216,31 @@ export default function HomePage({ onPageChange }: HomePageProps) {
                 let styles = '';
                 if (offset === 0) {
                   // Center
-                  styles = 'z-30 scale-100 translate-x-0 opacity-100 shadow-2xl shadow-gold-900/50';
+                  styles = 'z-30 scale-100 translate-x-0 opacity-100 shadow-2xl shadow-gold-900/50 cursor-pointer';
                 } else if (offset === 1 || offset === -3) {
                   // Right
-                  styles = 'z-20 scale-85 translate-x-[60%] opacity-60 hover:opacity-80';
+                  styles = 'z-20 scale-60 translate-x-[65%] opacity-60';
                 } else if (offset === -1 || offset === 3) {
                   // Left
-                  styles = 'z-20 scale-85 -translate-x-[60%] opacity-60 hover:opacity-80';
+                  styles = 'z-20 scale-60 -translate-x-[65%] opacity-60';
                 } else {
                   // Back (Hidden/Far)
-                  styles = 'z-10 scale-75 translate-x-0 opacity-0'; // Hide the back one for cleaner look with 4 items
+                  styles = 'z-10 scale-50 translate-x-0 opacity-0';
                 }
 
                 return (
                   <button
                     key={category.id}
-                    onClick={() => {
+                    onClick={(e) => {
+                      // Prevent click if it was a drag
+                      if (Math.abs(dragRef.current.currentX - dragRef.current.startX) > 10) {
+                        e.preventDefault();
+                        return;
+                      }
+                      
                       if (offset === 0) {
-                        // If clicking active, just scroll
+                        // Only scroll if clicking the active center card
                         experiencesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      } else {
-                        // If clicking side, make active
-                        setActiveCategoryIndex(index);
-                        setSelectedCategory(category.id);
-                        setTimeout(() => {
-                          experiencesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }, 300);
                       }
                     }}
                     className={`absolute transition-all duration-500 ease-out rounded-2xl overflow-hidden w-[70vw] max-w-xs h-[60vh] max-h-96 ${styles}`}
@@ -248,11 +248,11 @@ export default function HomePage({ onPageChange }: HomePageProps) {
                     <img 
                       src={categoryImages[category.name] || 'https://images.unsplash.com/photo-1518182170546-0766aa6f6a56?auto=format&fit=crop&q=80&w=800'} 
                       alt={category.name}
-                      className="absolute inset-0 w-full h-full object-cover"
+                      className="absolute inset-0 w-full h-full object-cover pointer-events-none"
                     />
-                    <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent ${offset === 0 ? 'opacity-80' : 'opacity-60'}`} />
+                    <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none ${offset === 0 ? 'opacity-80' : 'opacity-60'}`} />
                     
-                    <div className="absolute inset-0 flex flex-col justify-end p-6">
+                    <div className="absolute inset-0 flex flex-col justify-end p-6 pointer-events-none">
                       <span className={`font-bold tracking-widest uppercase text-center transition-all duration-300 ${
                         offset === 0 ? 'text-gold-400 text-xl' : 'text-white/80 text-sm'
                       }`}>
