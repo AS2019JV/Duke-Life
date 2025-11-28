@@ -47,48 +47,55 @@ export default function CursosPage() {
 
   return (
     <div className="flex-1 overflow-y-auto pb-24">
-      <header className="sticky top-0 z-40 bg-[#0a0a0a]/80 backdrop-blur-lg border-b border-white/10 p-4">
-        <h1 className="text-2xl font-bold text-white text-center tracking-tight">Educación y Mentoría</h1>
+      <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-2xl border-b border-white/5 px-6 py-5 transition-all duration-300">
+        <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-gold-400 to-gold-300 text-center tracking-[0.15em] uppercase">Educación y Mentoría</h1>
       </header>
 
-      <main className="p-4 space-y-6">
-        <p className="text-gray-400 text-center font-light leading-relaxed">
+      <main className="p-6 space-y-8">
+        <p className="text-white/60 text-center font-light leading-relaxed tracking-wide">
           Como miembro{' '}
-          <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-600">
+          <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-400 to-gold-200">
             {getMembershipText()}
           </span>
           , tiene acceso a beneficios exclusivos en todos los cursos.
         </p>
 
         {loading ? (
-          <div className="text-center text-gray-400 py-8">Cargando cursos...</div>
+          <div className="flex flex-col items-center justify-center py-20 space-y-4">
+            <div className="w-12 h-12 rounded-full border-2 border-gold-400/30 border-t-gold-400 animate-spin" />
+            <p className="text-white/40 font-light tracking-wide text-sm">Cargando cursos...</p>
+          </div>
         ) : (
           courses.map((course) => (
             <div
               key={course.id}
-              className="bg-[#1a1a1a] border border-white/10 rounded-2xl overflow-hidden"
+              className="group relative rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-gold-900/20"
             >
               <img
                 src={course.image_url}
                 alt={course.title}
-                className="h-40 w-full object-cover"
+                className="h-56 w-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
-              <div className="p-4">
-                <h3 className="text-lg font-bold text-white tracking-tight">{course.title}</h3>
-                <p className="text-sm text-gray-400 mb-3 font-light">Mentor: {course.mentor}</p>
-
-                <div className="mb-4">
-                  <span className="inline-block bg-yellow-600/20 text-yellow-400 font-medium text-sm px-3 py-1 rounded-full tracking-wide">
-                    {getAccessText(course)}
-                  </span>
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+              
+              <div className="absolute bottom-0 left-0 right-0 p-6 space-y-4">
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-white tracking-tight leading-tight">{course.title}</h3>
+                  <p className="text-xs text-gold-400/80 font-light tracking-widest uppercase">Mentor: {course.mentor}</p>
                 </div>
 
-                <button
-                  onClick={() => setSelectedCourse(course)}
-                  className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-semibold py-2 rounded-lg text-sm hover:shadow-lg hover:shadow-yellow-500/50 transition-all tracking-wide hover:scale-[1.02] active:scale-[0.98]"
-                >
-                  Comenzar Curso
-                </button>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="inline-block bg-gold-400/20 text-gold-300 font-medium text-xs px-4 py-2 rounded-full tracking-wide border border-gold-400/30">
+                    {getAccessText(course)}
+                  </span>
+
+                  <button
+                    onClick={() => setSelectedCourse(course)}
+                    className="bg-gradient-to-r from-gold-400 to-gold-500 hover:from-gold-300 hover:to-gold-400 text-black font-bold py-3 px-6 rounded-full shadow-lg shadow-gold-900/30 transition-all duration-500 transform hover:scale-105 hover:shadow-xl hover:shadow-gold-900/40 text-xs tracking-widest uppercase"
+                  >
+                    Comenzar
+                  </button>
+                </div>
               </div>
             </div>
           ))

@@ -73,12 +73,21 @@ export default function HomePage({ onPageChange }: HomePageProps) {
       .order('name');
 
     if (data) {
-      // Sort: Riviera Maya first, Dubai last, others alphabetical
+      // Sort: Riviera Maya first, Miami middle, Dubai last
+      const order = ['Riviera Maya', 'Miami', 'Dubai'];
       const sortedData = [...data].sort((a, b) => {
-        if (a.name === 'Riviera Maya') return -1;
-        if (b.name === 'Riviera Maya') return 1;
-        if (a.name === 'Dubai') return 1;
-        if (b.name === 'Dubai') return -1;
+        const indexA = order.indexOf(a.name);
+        const indexB = order.indexOf(b.name);
+        
+        // If both are in the order array, sort by their position
+        if (indexA !== -1 && indexB !== -1) {
+          return indexA - indexB;
+        }
+        // If only a is in the order array, it comes first
+        if (indexA !== -1) return -1;
+        // If only b is in the order array, it comes first
+        if (indexB !== -1) return 1;
+        // Otherwise, sort alphabetically
         return a.name.localeCompare(b.name);
       });
 
@@ -199,7 +208,7 @@ export default function HomePage({ onPageChange }: HomePageProps) {
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-2">
               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold-400/30 to-transparent" />
-              <h2 className="text-2xl font-light text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-gold-400 to-gold-300 tracking-[0.15em] uppercase">
+              <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-gold-400 to-gold-300 tracking-[0.15em] uppercase">
                 Categorías
               </h2>
               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold-400/30 to-transparent" />
@@ -314,7 +323,7 @@ export default function HomePage({ onPageChange }: HomePageProps) {
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-3">
               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold-400/30 to-gold-300/20" />
-              <h2 className="text-2xl font-light text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-gold-400 to-gold-300 tracking-[0.15em] uppercase">
+              <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-gold-400 to-gold-300 tracking-[0.15em] uppercase">
                 Experiencias
               </h2>
               <div className="h-px flex-1 bg-gradient-to-r from-gold-300/20 via-gold-400/30 to-transparent" />

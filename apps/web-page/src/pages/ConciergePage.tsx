@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Send, Sparkles } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, ConciergeMessage } from '../lib/supabase';
 
@@ -103,16 +103,10 @@ export default function ConciergePage() {
   return (
     <div className="flex-1 flex flex-col h-screen">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-gradient-to-b from-black via-black/95 to-black/60 backdrop-blur-xl border-b border-gold-400/20 p-6">
-        <div className="flex items-center justify-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold-400 to-amber-500 flex items-center justify-center shadow-lg shadow-gold-400/30">
-            <Sparkles className="w-5 h-5 text-black" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-extralight text-gold-400/90 tracking-wide">Concierge 24/7</h1>
-            <p className="text-[9px] text-white/40 tracking-widest uppercase font-light">Servicio Premium</p>
-          </div>
-        </div>
+      <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-2xl border-b border-white/5 px-6 py-5 transition-all duration-300">
+        <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-gold-400 to-gold-300 text-center tracking-[0.15em] uppercase">
+          Concierge
+        </h1>
       </header>
 
       {/* Messages Area */}
