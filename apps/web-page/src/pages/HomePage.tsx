@@ -127,6 +127,61 @@ export default function HomePage({ onPageChange }: HomePageProps) {
           setSelectedExperience(null);
         }}
         onReservationCreated={() => {
+          onPageChange('reservas');
+        }}
+      />
+    );
+  }
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Buenos días';
+    if (hour < 18) return 'Buenas tardes';
+    return 'Buenas noches';
+  };
+
+  return (
+    <div className="flex-1 overflow-y-auto pb-24">
+      <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-2xl border-b border-white/5 px-6 py-5 transition-all duration-300">
+        <div className="flex justify-between items-center">
+          <div className="flex flex-col">
+            <p className="text-[10px] font-medium text-gold-400/80 tracking-[0.3em] uppercase mb-1">
+              {getGreeting()}
+            </p>
+            <h1 className="text-2xl font-light text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/80 tracking-wide">
+              {user?.full_name?.split(' ')[0] || 'Miembro'}
+            </h1>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <div className="flex flex-col items-end">
+              <span className="text-[9px] font-bold text-gold-400 tracking-[0.2em] uppercase">
+                {getMembershipDisplay()}
+              </span>
+              <div className="flex items-center gap-1 mt-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                <span className="text-[8px] text-white/40 tracking-wider uppercase">Concierge Activo</span>
+              </div>
+            </div>
+            
+            <button
+              onClick={() => onPageChange('perfil')}
+              className="relative w-10 h-10 rounded-full p-[1px] bg-gradient-to-b from-gold-400 to-gold-900 shadow-lg shadow-gold-900/20 group"
+            >
+              <div className="w-full h-full rounded-full bg-black flex items-center justify-center overflow-hidden relative">
+                {user?.avatar_url ? (
+                  <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                ) : (
+                  <span className="text-gold-400 font-light text-sm">{user?.full_name?.[0] || 'D'}</span>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-tr from-gold-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="p-6 space-y-10">
         <div>
           {/* Section Header with Luxury Typography */}
           <div className="mb-8">
