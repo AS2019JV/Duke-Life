@@ -235,83 +235,108 @@ export default function HomePage({ onPageChange }: HomePageProps) {
           
           
           {/* Coverflow Style Carousel */}
-          <div className="relative w-full h-[400px] flex justify-center items-center overflow-hidden">
-            <div 
-              className="relative w-full h-full flex justify-center items-center perspective-1000 cursor-grab active:cursor-grabbing"
-              onTouchStart={(e) => handleDragStart(e.touches[0].clientX)}
-              onTouchMove={(e) => handleDragMove(e.touches[0].clientX)}
-              onTouchEnd={handleDragEnd}
-              onMouseDown={(e) => handleDragStart(e.clientX)}
-              onMouseMove={(e) => handleDragMove(e.clientX)}
-              onMouseUp={handleDragEnd}
-              onMouseLeave={handleDragEnd}
-            >
-              {categories.map((category, index) => {
-                const categoryImages: Record<string, string> = {
-                  'Bienestar': 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&q=80&w=800',
-                  'Lujo': 'https://images.unsplash.com/photo-1565623833408-d77e39b88af6?auto=format&fit=crop&q=80&w=800',
-                  'Gastronomía': 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=800',
-                  'Aventura': 'https://images.unsplash.com/photo-1533692328991-08159ff19fca?auto=format&fit=crop&q=80&w=800'
-                };
+          <div className="relative w-full flex flex-col items-center gap-8">
+            <div className="relative w-full h-[400px] flex justify-center items-center overflow-hidden">
+              <div 
+                className="relative w-full h-full flex justify-center items-center perspective-1000 cursor-grab active:cursor-grabbing"
+                onTouchStart={(e) => handleDragStart(e.touches[0].clientX)}
+                onTouchMove={(e) => handleDragMove(e.touches[0].clientX)}
+                onTouchEnd={handleDragEnd}
+                onMouseDown={(e) => handleDragStart(e.clientX)}
+                onMouseMove={(e) => handleDragMove(e.clientX)}
+                onMouseUp={handleDragEnd}
+                onMouseLeave={handleDragEnd}
+              >
+                {categories.map((category, index) => {
+                  const categoryImages: Record<string, string> = {
+                    'Bienestar': 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&q=80&w=800',
+                    'Lujo': 'https://images.unsplash.com/photo-1565623833408-d77e39b88af6?auto=format&fit=crop&q=80&w=800',
+                    'Gastronomía': 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=800',
+                    'Aventura': 'https://images.unsplash.com/photo-1533692328991-08159ff19fca?auto=format&fit=crop&q=80&w=800'
+                  };
 
-                // Calculate position relative to active index
-                let offset = (index - activeCategoryIndex + categories.length) % categories.length;
-                // Adjust offset to be -1, 0, 1, 2 (for 4 items)
-                if (offset > categories.length / 2) offset -= categories.length;
+                  const categorySubtitles: Record<string, string> = {
+                    'Bienestar': 'Rituales, spas y masajes exclusivos',
+                    'Lujo': 'Experiencias de alta gama y confort',
+                    'Gastronomía': 'Sabores únicos y cocina de autor',
+                    'Aventura': 'Emociones intensas y naturaleza'
+                  };
 
-                // Determine styles based on offset
-                let styles = '';
-                if (offset === 0) {
-                  // Center
-                  styles = 'z-30 scale-100 translate-x-0 opacity-100 shadow-2xl shadow-gold-900/50 cursor-pointer';
-                } else if (offset === 1 || offset === -3) {
-                  // Right
-                  styles = 'z-20 scale-60 translate-x-[65%] opacity-60';
-                } else if (offset === -1 || offset === 3) {
-                  // Left
-                  styles = 'z-20 scale-60 -translate-x-[65%] opacity-60';
-                } else {
-                  // Back (Hidden/Far)
-                  styles = 'z-10 scale-50 translate-x-0 opacity-0';
-                }
+                  // Calculate position relative to active index
+                  let offset = (index - activeCategoryIndex + categories.length) % categories.length;
+                  // Adjust offset to be -1, 0, 1, 2 (for 4 items)
+                  if (offset > categories.length / 2) offset -= categories.length;
 
-                return (
-                  <button
-                    key={category.id}
-                    onClick={(e) => {
-                      // Prevent click if it was a drag
-                      if (Math.abs(dragRef.current.currentX - dragRef.current.startX) > 10) {
-                        e.preventDefault();
-                        return;
-                      }
+                  // Determine styles based on offset
+                  let styles = '';
+                  if (offset === 0) {
+                    // Center (VIP Active)
+                    styles = 'z-30 scale-[1.02] translate-x-0 opacity-100 shadow-[0_18px_45px_rgba(0,0,0,0.6)] cursor-pointer ring-1 ring-white/10';
+                  } else if (offset === 1 || offset === -3) {
+                    // Right
+                    styles = 'z-20 scale-90 translate-x-[65%] opacity-60 blur-[2px] hover:opacity-80 transition-all';
+                  } else if (offset === -1 || offset === 3) {
+                    // Left
+                    styles = 'z-20 scale-90 -translate-x-[65%] opacity-60 blur-[2px] hover:opacity-80 transition-all';
+                  } else {
+                    // Back (Hidden/Far)
+                    styles = 'z-10 scale-75 translate-x-0 opacity-0';
+                  }
+
+                  return (
+                    <button
+                      key={category.id}
+                      onClick={(e) => {
+                        // Prevent click if it was a drag
+                        if (Math.abs(dragRef.current.currentX - dragRef.current.startX) > 10) {
+                          e.preventDefault();
+                          return;
+                        }
+                        
+                        if (offset === 0) {
+                          // Only scroll if clicking the active center card
+                          experiencesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                      }}
+                      className={`absolute transition-all duration-500 ease-out rounded-3xl overflow-hidden w-[70vw] max-w-xs h-[60vh] max-h-96 ${styles}`}
+                    >
+                      <img 
+                        src={categoryImages[category.name] || 'https://images.unsplash.com/photo-1518182170546-0766aa6f6a56?auto=format&fit=crop&q=80&w=800'} 
+                        alt={category.name}
+                        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                      />
+                      {/* Gradient Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none opacity-80" />
                       
-                      if (offset === 0) {
-                        // Only scroll if clicking the active center card
-                        experiencesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      }
-                    }}
-                    className={`absolute transition-all duration-500 ease-out rounded-2xl overflow-hidden w-[70vw] max-w-xs h-[60vh] max-h-96 ${styles}`}
-                  >
-                    <img 
-                      src={categoryImages[category.name] || 'https://images.unsplash.com/photo-1518182170546-0766aa6f6a56?auto=format&fit=crop&q=80&w=800'} 
-                      alt={category.name}
-                      className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-                    />
-                    <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none ${offset === 0 ? 'opacity-80' : 'opacity-60'}`} />
-                    
-                    <div className="absolute inset-0 flex flex-col justify-end p-6 pointer-events-none">
-                      <span className={`font-bold tracking-widest uppercase text-center transition-all duration-300 ${
-                        offset === 0 ? 'text-gold-400 text-xl' : 'text-white/80 text-sm'
-                      }`}>
-                        {category.name}
-                      </span>
-                      {offset === 0 && (
-                        <div className="w-1.5 h-1.5 bg-gold-400 rounded-full mx-auto mt-3 animate-pulse" />
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
+                      {/* Glassmorphism Content Area */}
+                      <div className="absolute bottom-0 left-0 right-0 p-6 pointer-events-none">
+                        <div className={`backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl p-4 transition-all duration-500 ${offset === 0 ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
+                          <h3 className="text-[0.9rem] font-semibold text-white tracking-[0.2em] uppercase mb-1">
+                            {category.name}
+                          </h3>
+                          <p className="text-xs text-gray-300/70 font-light tracking-wide">
+                            {categorySubtitles[category.name] || 'Experiencias exclusivas'}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Custom Indicators */}
+            <div className="flex items-center gap-2">
+              {categories.map((_, index) => (
+                <div
+                  key={index}
+                  className={`transition-all duration-500 rounded-full ${
+                    index === activeCategoryIndex
+                      ? 'w-6 h-1.5 bg-gradient-to-r from-gold-400 to-gold-600 shadow-lg shadow-gold-900/50'
+                      : 'w-1.5 h-1.5 bg-white/20'
+                  }`}
+                />
+              ))}
             </div>
           </div>
         </div>
