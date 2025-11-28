@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Destination, Experience, Category } from '../lib/supabase';
 import ExperienceDetailPage from './ExperienceDetailPage';
+import HeroCarousel from '../components/home/HeroCarousel';
 
 interface HomePageProps {
   onPageChange: (page: string) => void;
@@ -72,9 +73,18 @@ export default function HomePage({ onPageChange }: HomePageProps) {
       .order('name');
 
     if (data) {
-      setDestinations(data);
-      if (data.length > 0) {
-        setSelectedDestination(data[0].id);
+      // Sort: Riviera Maya first, Dubai last, others alphabetical
+      const sortedData = [...data].sort((a, b) => {
+        if (a.name === 'Riviera Maya') return -1;
+        if (b.name === 'Riviera Maya') return 1;
+        if (a.name === 'Dubai') return 1;
+        if (b.name === 'Dubai') return -1;
+        return a.name.localeCompare(b.name);
+      });
+
+      setDestinations(sortedData);
+      if (sortedData.length > 0) {
+        setSelectedDestination(sortedData[0].id);
       }
     }
   };
@@ -155,12 +165,11 @@ export default function HomePage({ onPageChange }: HomePageProps) {
           
           <div className="flex items-center gap-4">
             <div className="flex flex-col items-end">
-              <span className="text-[9px] font-bold text-gold-400 tracking-[0.2em] uppercase">
-                {getMembershipDisplay()}
-              </span>
-              <div className="flex items-center gap-1 mt-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                <span className="text-[8px] text-white/40 tracking-wider uppercase">Concierge Activo</span>
+              <div className="px-3 py-1 rounded-full bg-gradient-to-r from-black via-zinc-900 to-black border border-gold-400/30 shadow-[0_0_15px_rgba(250,204,21,0.1)] flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-gold-400 animate-pulse" />
+                <span className="text-[9px] font-bold text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-400 to-gold-200 tracking-[0.2em] uppercase">
+                  {getMembershipDisplay()}
+                </span>
               </div>
             </div>
             
@@ -183,6 +192,9 @@ export default function HomePage({ onPageChange }: HomePageProps) {
 
       <main className="p-6 space-y-10">
         <div>
+          {/* Hero Carousel */}
+          <HeroCarousel />
+
           {/* Section Header with Luxury Typography */}
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-2">

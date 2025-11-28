@@ -16,6 +16,7 @@ export interface User {
   email: string;
   full_name: string;
   phone: string;
+  avatar_url?: string;
   membership_type: MembershipType;
   created_at: string;
   updated_at: string;

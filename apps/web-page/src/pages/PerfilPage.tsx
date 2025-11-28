@@ -1,14 +1,16 @@
-import { UserCircle, Award, CreditCard, Settings, LogOut, Crown, Star, Calendar, TrendingUp, ChevronRight, Sparkles } from 'lucide-react';
+import { UserCircle, Award, CreditCard, Settings, LogOut, Crown, Star, Calendar, TrendingUp, ChevronRight, Sparkles, Camera, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import SettingsModal from '../components/SettingsModal';
 
 export default function PerfilPage() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, refreshProfile } = useAuth();
   const [reservationCount, setReservationCount] = useState(0);
   const [upcomingCount, setUpcomingCount] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user) {
@@ -69,6 +71,75 @@ export default function PerfilPage() {
     }
   };
 
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user) return;
+
+    try {
+      if (!event.target.files || event.target.files.length === 0) {
+        return;
+      }
+
+      const file = event.target.files[0];
+      
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+         alert('Solo se permiten imágenes.');
+         return;
+      }
+      
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('La imagen no debe superar los 5MB.');
+        return;
+      }
+
+      setUploading(true);
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user?.id}/avatar-${Date.now()}.${fileExt}`;
+
+      // Upload to Supabase
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get Public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      // Update User Profile
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user?.id);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      await refreshProfile();
+      // alert('Avatar actualizado correctamente!');
+
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      alert('Error al actualizar el avatar.');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   const colors = getMembershipColor();
 
   return (
@@ -86,13 +157,42 @@ export default function PerfilPage() {
           {/* Profile Header */}
           <div className="flex flex-col items-center space-y-4">
             {/* Avatar */}
-            <div className={`relative w-28 h-28 rounded-full bg-gradient-to-br ${colors.gradient} flex items-center justify-center border-2 ${colors.border} shadow-2xl ${colors.glow} animate-in zoom-in-95 duration-500`}>
-              <UserCircle className={`w-20 h-20 ${colors.icon}`} />
+            {/* Avatar */}
+            <div 
+              className={`relative w-28 h-28 rounded-full bg-gradient-to-br ${colors.gradient} flex items-center justify-center border-2 ${colors.border} shadow-2xl ${colors.glow} animate-in zoom-in-95 duration-500 group cursor-pointer overflow-hidden`}
+              onClick={handleAvatarClick}
+            >
+              {user?.avatar_url ? (
+                <img src={user.avatar_url} alt="Avatar" className="w-full h-full rounded-full object-cover" />
+              ) : (
+                <UserCircle className={`w-20 h-20 ${colors.icon}`} />
+              )}
+
+              {/* Edit Overlay */}
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <Camera className="w-8 h-8 text-white" />
+              </div>
+
+              {/* Loading Overlay */}
+              {uploading && (
+                <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-10">
+                  <Loader2 className="w-8 h-8 text-white animate-spin" />
+                </div>
+              )}
+
               {user?.membership_type === 'black_elite' && (
-                <div className="absolute -top-1 -right-1 w-8 h-8 bg-gold-400 rounded-full flex items-center justify-center border-2 border-black shadow-lg">
+                <div className="absolute -top-1 -right-1 w-8 h-8 bg-gold-400 rounded-full flex items-center justify-center border-2 border-black shadow-lg z-20">
                   <Crown className="w-4 h-4 text-black" />
                 </div>
               )}
+              
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleAvatarUpload} 
+                className="hidden" 
+                accept="image/*"
+              />
             </div>
 
             {/* Name & Email */}
