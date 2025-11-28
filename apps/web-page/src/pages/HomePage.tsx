@@ -127,35 +127,6 @@ export default function HomePage({ onPageChange }: HomePageProps) {
           setSelectedExperience(null);
         }}
         onReservationCreated={() => {
-          onPageChange('reservas');
-        }}
-      />
-    );
-  }
-
-  return (
-    <div className="flex-1 overflow-y-auto pb-24">
-      <header className="sticky top-0 z-40 bg-black/60 backdrop-blur-xl border-b border-white/5 p-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-[10px] font-light text-white/40 tracking-[0.3em] uppercase mb-2">Bienvenido,</p>
-            <h1 className="text-2xl font-extralight text-gold-400/90 tracking-wide">{user?.full_name || 'Miembro Duke'}</h1>
-          </div>
-          <div className="text-right">
-            <span className="block font-light text-gold-400 text-[10px] tracking-[0.3em] uppercase mb-2">
-              {getMembershipDisplay()}
-            </span>
-            <button
-              onClick={() => onPageChange('perfil')}
-              className="text-[10px] text-white/40 hover:text-gold-400 font-light tracking-wider uppercase transition-colors border-b border-transparent hover:border-gold-400"
-            >
-              Ver Perfil
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="p-6 space-y-10">
         <div>
           {/* Section Header with Luxury Typography */}
           <div className="mb-8">
