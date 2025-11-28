@@ -78,18 +78,7 @@ export default function HomePage({ onPageChange }: HomePageProps) {
     return 'GOLD';
   };
 
-  const getPrice = (exp: Experience) => {
-    if (user?.membership_type === 'black_elite' && exp.black_elite_included) {
-      return { text: 'Incluido (1/mes)', original: exp.base_price };
-    }
-    if (user?.membership_type === 'black_elite') {
-      return { text: `$${exp.black_elite_price}`, original: exp.base_price };
-    }
-    if (user?.membership_type === 'platinum') {
-      return { text: `$${exp.platinum_price}`, original: exp.base_price };
-    }
-    return { text: `$${exp.gold_price}`, original: exp.base_price };
-  };
+
 
   if (showDetailPage && selectedExperience) {
     return (
@@ -141,118 +130,50 @@ export default function HomePage({ onPageChange }: HomePageProps) {
               </button>
             )}
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            {/* Bienestar */}
-            <button
-              onClick={() => setSelectedCategory(selectedCategory === categories.find(c => c.name === 'Bienestar')?.id ? '' : categories.find(c => c.name === 'Bienestar')?.id || '')}
-              className={`group relative overflow-hidden rounded-2xl p-6 transition-all duration-500 ${
-                selectedCategory === categories.find(c => c.name === 'Bienestar')?.id
-                  ? 'bg-gradient-to-br from-rose-500/20 to-pink-500/10 border-2 border-rose-400/50 shadow-lg shadow-rose-400/20 scale-[1.02]'
-                  : 'bg-gradient-to-br from-white/10 to-white/5 border border-white/10 hover:border-rose-400/30 hover:scale-[1.02] hover:shadow-lg hover:shadow-rose-400/10'
-              }`}
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-rose-400/0 to-pink-400/0 group-hover:from-rose-400/5 group-hover:to-pink-400/5 transition-all duration-500" />
-              <div className="relative flex flex-col items-center gap-3 text-center">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${
-                  selectedCategory === categories.find(c => c.name === 'Bienestar')?.id
-                    ? 'bg-rose-400/30 shadow-lg shadow-rose-400/30'
-                    : 'bg-rose-400/10 group-hover:bg-rose-400/20'
-                }`}>
-                  <svg className="w-7 h-7 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                </div>
-                <span className={`text-xs font-light tracking-wider uppercase transition-colors ${
-                  selectedCategory === categories.find(c => c.name === 'Bienestar')?.id
-                    ? 'text-rose-300'
-                    : 'text-white/90'
-                }`}>Bienestar</span>
-              </div>
-            </button>
+          
+          <div className="flex space-x-4 overflow-x-auto pb-8 -mx-6 px-6 no-scrollbar snap-x snap-mandatory">
+            {categories.map((category) => {
+              const categoryImages: Record<string, string> = {
+                'Bienestar': 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&q=80&w=800',
+                'Lujo': 'https://images.unsplash.com/photo-1565623833408-d77e39b88af6?auto=format&fit=crop&q=80&w=800',
+                'Gastronomía': 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=800',
+                'Aventura': 'https://images.unsplash.com/photo-1533692328991-08159ff19fca?auto=format&fit=crop&q=80&w=800'
+              };
 
-            {/* Lujo */}
-            <button
-              onClick={() => setSelectedCategory(selectedCategory === categories.find(c => c.name === 'Lujo')?.id ? '' : categories.find(c => c.name === 'Lujo')?.id || '')}
-              className={`group relative overflow-hidden rounded-2xl p-6 transition-all duration-500 ${
-                selectedCategory === categories.find(c => c.name === 'Lujo')?.id
-                  ? 'bg-gradient-to-br from-gold-500/20 to-amber-500/10 border-2 border-gold-400/50 shadow-lg shadow-gold-400/20 scale-[1.02]'
-                  : 'bg-gradient-to-br from-white/10 to-white/5 border border-white/10 hover:border-gold-400/30 hover:scale-[1.02] hover:shadow-lg hover:shadow-gold-400/10'
-              }`}
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-gold-400/0 to-amber-400/0 group-hover:from-gold-400/5 group-hover:to-amber-400/5 transition-all duration-500" />
-              <div className="relative flex flex-col items-center gap-3 text-center">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${
-                  selectedCategory === categories.find(c => c.name === 'Lujo')?.id
-                    ? 'bg-gold-400/30 shadow-lg shadow-gold-400/30'
-                    : 'bg-gold-400/10 group-hover:bg-gold-400/20'
-                }`}>
-                  <svg className="w-7 h-7 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                  </svg>
-                </div>
-                <span className={`text-xs font-light tracking-wider uppercase transition-colors ${
-                  selectedCategory === categories.find(c => c.name === 'Lujo')?.id
-                    ? 'text-gold-300'
-                    : 'text-white/90'
-                }`}>Lujo</span>
-              </div>
-            </button>
-
-            {/* Gastronomía */}
-            <button
-              onClick={() => setSelectedCategory(selectedCategory === categories.find(c => c.name === 'Gastronomía')?.id ? '' : categories.find(c => c.name === 'Gastronomía')?.id || '')}
-              className={`group relative overflow-hidden rounded-2xl p-6 transition-all duration-500 ${
-                selectedCategory === categories.find(c => c.name === 'Gastronomía')?.id
-                  ? 'bg-gradient-to-br from-orange-500/20 to-red-500/10 border-2 border-orange-400/50 shadow-lg shadow-orange-400/20 scale-[1.02]'
-                  : 'bg-gradient-to-br from-white/10 to-white/5 border border-white/10 hover:border-orange-400/30 hover:scale-[1.02] hover:shadow-lg hover:shadow-orange-400/10'
-              }`}
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-400/0 to-red-400/0 group-hover:from-orange-400/5 group-hover:to-red-400/5 transition-all duration-500" />
-              <div className="relative flex flex-col items-center gap-3 text-center">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${
-                  selectedCategory === categories.find(c => c.name === 'Gastronomía')?.id
-                    ? 'bg-orange-400/30 shadow-lg shadow-orange-400/30'
-                    : 'bg-orange-400/10 group-hover:bg-orange-400/20'
-                }`}>
-                  <svg className="w-7 h-7 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
-                  </svg>
-                </div>
-                <span className={`text-xs font-light tracking-wider uppercase transition-colors ${
-                  selectedCategory === categories.find(c => c.name === 'Gastronomía')?.id
-                    ? 'text-orange-300'
-                    : 'text-white/90'
-                }`}>Gastronomía</span>
-              </div>
-            </button>
-
-            {/* Aventura */}
-            <button
-              onClick={() => setSelectedCategory(selectedCategory === categories.find(c => c.name === 'Aventura')?.id ? '' : categories.find(c => c.name === 'Aventura')?.id || '')}
-              className={`group relative overflow-hidden rounded-2xl p-6 transition-all duration-500 ${
-                selectedCategory === categories.find(c => c.name === 'Aventura')?.id
-                  ? 'bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border-2 border-emerald-400/50 shadow-lg shadow-emerald-400/20 scale-[1.02]'
-                  : 'bg-gradient-to-br from-white/10 to-white/5 border border-white/10 hover:border-emerald-400/30 hover:scale-[1.02] hover:shadow-lg hover:shadow-emerald-400/10'
-              }`}
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/0 to-teal-400/0 group-hover:from-emerald-400/5 group-hover:to-teal-400/5 transition-all duration-500" />
-              <div className="relative flex flex-col items-center gap-3 text-center">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${
-                  selectedCategory === categories.find(c => c.name === 'Aventura')?.id
-                    ? 'bg-emerald-400/30 shadow-lg shadow-emerald-400/30'
-                    : 'bg-emerald-400/10 group-hover:bg-emerald-400/20'
-                }`}>
-                  <svg className="w-7 h-7 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.871 4A17.926 17.926 0 003 12c0 2.874.673 5.59 1.871 8m14.13 0a17.926 17.926 0 001.87-8c0-2.874-.673-5.59-1.87-8M9 9h1.246a1 1 0 01.961.725l1.586 5.55a1 1 0 00.961.725H15m1-7h-.08a2 2 0 00-1.519.698L9.6 15.302A2 2 0 018.08 16H8" />
-                  </svg>
-                </div>
-                <span className={`text-xs font-light tracking-wider uppercase transition-colors ${
-                  selectedCategory === categories.find(c => c.name === 'Aventura')?.id
-                    ? 'text-emerald-300'
-                    : 'text-white/90'
-                }`}>Aventura</span>
-              </div>
-            </button>
+              const isSelected = selectedCategory === category.id;
+              
+              return (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedCategory(isSelected ? '' : category.id)}
+                  className={`relative flex-shrink-0 w-40 h-56 rounded-xl overflow-hidden transition-all duration-500 snap-center group ${
+                    isSelected 
+                      ? 'ring-2 ring-gold-400 scale-105 shadow-xl shadow-gold-900/40' 
+                      : 'hover:scale-105 hover:shadow-lg hover:shadow-black/50 opacity-80 hover:opacity-100'
+                  }`}
+                >
+                  <img 
+                    src={categoryImages[category.name] || 'https://images.unsplash.com/photo-1518182170546-0766aa6f6a56?auto=format&fit=crop&q=80&w=800'} 
+                    alt={category.name}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent transition-opacity duration-500 ${
+                    isSelected ? 'opacity-90' : 'opacity-60 group-hover:opacity-80'
+                  }`} />
+                  
+                  <div className="absolute inset-0 flex flex-col justify-end p-4">
+                    <span className={`text-sm font-medium tracking-widest uppercase text-center transition-colors duration-300 ${
+                      isSelected ? 'text-gold-400' : 'text-white group-hover:text-gold-200'
+                    }`}>
+                      {category.name}
+                    </span>
+                    {isSelected && (
+                      <div className="w-1 h-1 bg-gold-400 rounded-full mx-auto mt-2 animate-pulse" />
+                    )}
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -294,31 +215,32 @@ export default function HomePage({ onPageChange }: HomePageProps) {
           </div>
 
           {experiences.map((exp) => {
-            const price = getPrice(exp);
+
             return (
               <div
                 key={exp.id}
-                className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden hover:border-gold-400/30 transition-all duration-500"
+                className="group relative h-[400px] rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-gold-900/20"
               >
+                {/* Background Image */}
                 <img
                   src={exp.image_url}
                   alt={exp.title}
-                  className="h-48 w-full object-cover"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
-                <div className="p-6 space-y-4">
-                  <h3 className="text-lg font-light text-white tracking-wide">{exp.title}</h3>
-                  <p className="text-[10px] text-white/40 font-light tracking-widest uppercase">
-                    {exp.categories?.name} • {exp.destinations?.name}
-                  </p>
+                
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90" />
 
-                  <div className="flex items-center gap-2 text-xs text-white/60 font-light">
-                    <span className="text-gold-400 tracking-wider uppercase text-[10px]">
-                      {getMembershipDisplay()}:
-                    </span>
-                    {price.original > 0 && (
-                      <span className="line-through opacity-50">${price.original}</span>
-                    )}
-                    <span className="font-medium text-gold-400">{price.text}</span>
+                {/* Content */}
+                <div className="absolute bottom-0 left-0 right-0 p-8 flex flex-col items-start gap-6">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-[10px] text-gold-400 font-medium tracking-[0.2em] uppercase">
+                      <span className="w-1 h-1 rounded-full bg-gold-400" />
+                      {exp.destinations?.name}
+                    </div>
+                    <h3 className="text-3xl font-bold text-white tracking-tight leading-tight max-w-[80%]">
+                      {exp.title}
+                    </h3>
                   </div>
 
                   <button
@@ -326,7 +248,7 @@ export default function HomePage({ onPageChange }: HomePageProps) {
                       setSelectedExperience(exp);
                       setShowDetailPage(true);
                     }}
-                    className="w-full bg-transparent border border-gold-400/40 text-gold-400 hover:bg-gold-400 hover:text-black font-light py-3 rounded-full text-[10px] transition-all duration-500 tracking-widest uppercase"
+                    className="bg-gradient-to-r from-gold-400 to-gold-500 hover:from-gold-300 hover:to-gold-400 text-black font-bold py-3 px-8 rounded-full shadow-lg shadow-gold-900/30 transition-all duration-500 transform hover:scale-105 hover:shadow-xl hover:shadow-gold-900/40 text-xs tracking-widest uppercase"
                   >
                     Reservar
                   </button>
