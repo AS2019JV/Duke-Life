@@ -152,41 +152,50 @@ export default function HomePage({ onPageChange }: HomePageProps) {
           </div>
           
           
-          {/* Simplified Swipeable Carousel */}
-          <div className="relative w-full pb-8">
-            {/* Left fade overlay */}
-            <div className="absolute left-0 top-0 bottom-8 w-16 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none" />
-            
+          {/* Coverflow Style Carousel */}
+          <div className="relative w-full h-[400px] flex justify-center items-center overflow-hidden">
             <div 
-              ref={carouselRef}
-              className="flex items-center justify-center gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth touch-pan-x px-4"
-              style={{ WebkitOverflowScrolling: 'touch' }}
-              onScroll={(e) => {
-                const container = e.currentTarget;
-                const scrollLeft = container.scrollLeft;
-                const containerWidth = container.offsetWidth;
-                const centerPosition = scrollLeft + containerWidth / 2;
+              className="relative w-full h-full flex justify-center items-center perspective-1000"
+              onTouchStart={(e) => {
+                const touch = e.touches[0];
+                carouselRef.current = { startX: touch.clientX, lastX: touch.clientX } as any;
+              }}
+              onTouchMove={(e) => {
+                if (!carouselRef.current) return;
+                const touch = e.touches[0];
+                const diff = touch.clientX - (carouselRef.current as any).startX;
+                // Optional: Add some drag resistance or visual feedback here
+              }}
+              onTouchEnd={(e) => {
+                if (!carouselRef.current) return;
+                const touch = e.changedTouches[0];
+                const diff = touch.clientX - (carouselRef.current as any).startX;
                 
-                // Find which category is closest to center
-                let closestIndex = 0;
-                let minDistance = Infinity;
-                
-                Array.from(container.children).forEach((child, idx) => {
-                  if (idx === 0 || idx === container.children.length - 1) return; // Skip fade overlays
-                  const element = child as HTMLElement;
-                  const elementCenter = element.offsetLeft + element.offsetWidth / 2;
-                  const distance = Math.abs(centerPosition - elementCenter);
-                  
-                  if (distance < minDistance) {
-                    minDistance = distance;
-                    closestIndex = idx - 1; // Adjust for fade overlay
+                if (Math.abs(diff) > 50) { // Threshold for swipe
+                  if (diff > 0) {
+                    // Swipe Right -> Previous
+                    setActiveCategoryIndex((prev) => (prev - 1 + categories.length) % categories.length);
+                  } else {
+                    // Swipe Left -> Next
+                    setActiveCategoryIndex((prev) => (prev + 1) % categories.length);
                   }
-                });
-                
-                if (closestIndex !== activeCategoryIndex && categories[closestIndex]) {
-                  setActiveCategoryIndex(closestIndex);
-                  setSelectedCategory(categories[closestIndex].id);
+                  
+                  // Update selected category
+                  const newIndex = diff > 0 
+                    ? (activeCategoryIndex - 1 + categories.length) % categories.length
+                    : (activeCategoryIndex + 1) % categories.length;
+                  
+                  setSelectedCategory(categories[newIndex].id);
+                  
+                  // Smooth scroll to experiences
+                  setTimeout(() => {
+                    experiencesRef.current?.scrollIntoView({ 
+                      behavior: 'smooth', 
+                      block: 'start' 
+                    });
+                  }, 300);
                 }
+                carouselRef.current = null;
               }}
             >
               {categories.map((category, index) => {
@@ -197,51 +206,59 @@ export default function HomePage({ onPageChange }: HomePageProps) {
                   'Aventura': 'https://images.unsplash.com/photo-1533692328991-08159ff19fca?auto=format&fit=crop&q=80&w=800'
                 };
 
-                const isCenter = index === activeCategoryIndex;
-                
+                // Calculate position relative to active index
+                let offset = (index - activeCategoryIndex + categories.length) % categories.length;
+                // Adjust offset to be -1, 0, 1, 2 (for 4 items)
+                if (offset > categories.length / 2) offset -= categories.length;
+
+                // Determine styles based on offset
+                let styles = '';
+                if (offset === 0) {
+                  // Center
+                  styles = 'z-30 scale-100 translate-x-0 opacity-100 shadow-2xl shadow-gold-900/50';
+                } else if (offset === 1 || offset === -3) {
+                  // Right
+                  styles = 'z-20 scale-85 translate-x-[60%] opacity-60 hover:opacity-80';
+                } else if (offset === -1 || offset === 3) {
+                  // Left
+                  styles = 'z-20 scale-85 -translate-x-[60%] opacity-60 hover:opacity-80';
+                } else {
+                  // Back (Hidden/Far)
+                  styles = 'z-10 scale-75 translate-x-0 opacity-0'; // Hide the back one for cleaner look with 4 items
+                }
+
                 return (
                   <button
                     key={category.id}
                     onClick={() => {
-                      setActiveCategoryIndex(index);
-                      setSelectedCategory(category.id);
-                      
-                      // Scroll this card to center
-                      const button = carouselRef.current?.children[index + 1] as HTMLElement;
-                      if (button) {
-                        button.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                      if (offset === 0) {
+                        // If clicking active, just scroll
+                        experiencesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      } else {
+                        // If clicking side, make active
+                        setActiveCategoryIndex(index);
+                        setSelectedCategory(category.id);
+                        setTimeout(() => {
+                          experiencesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 300);
                       }
-                      
-                      // Smooth scroll to experiences section
-                      setTimeout(() => {
-                        experiencesRef.current?.scrollIntoView({ 
-                          behavior: 'smooth', 
-                          block: 'start' 
-                        });
-                      }, 300);
                     }}
-                    className={`relative flex-shrink-0 rounded-2xl overflow-hidden transition-all duration-500 snap-center ${
-                      isCenter
-                        ? 'w-64 h-80 opacity-100 scale-100 shadow-2xl shadow-gold-900/40 ring-2 ring-gold-400'
-                        : 'w-48 h-64 opacity-50 scale-90 hover:opacity-75'
-                    }`}
+                    className={`absolute transition-all duration-500 ease-out rounded-2xl overflow-hidden w-[70vw] max-w-xs h-[60vh] max-h-96 ${styles}`}
                   >
                     <img 
                       src={categoryImages[category.name] || 'https://images.unsplash.com/photo-1518182170546-0766aa6f6a56?auto=format&fit=crop&q=80&w=800'} 
                       alt={category.name}
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      className="absolute inset-0 w-full h-full object-cover"
                     />
-                    <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent transition-opacity duration-500 ${
-                      isCenter ? 'opacity-90' : 'opacity-70'
-                    }`} />
+                    <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent ${offset === 0 ? 'opacity-80' : 'opacity-60'}`} />
                     
                     <div className="absolute inset-0 flex flex-col justify-end p-6">
-                      <span className={`text-base font-bold tracking-widest uppercase text-center transition-all duration-300 ${
-                        isCenter ? 'text-gold-400 text-lg' : 'text-white text-sm'
+                      <span className={`font-bold tracking-widest uppercase text-center transition-all duration-300 ${
+                        offset === 0 ? 'text-gold-400 text-xl' : 'text-white/80 text-sm'
                       }`}>
                         {category.name}
                       </span>
-                      {isCenter && (
+                      {offset === 0 && (
                         <div className="w-1.5 h-1.5 bg-gold-400 rounded-full mx-auto mt-3 animate-pulse" />
                       )}
                     </div>
@@ -249,9 +266,6 @@ export default function HomePage({ onPageChange }: HomePageProps) {
                 );
               })}
             </div>
-            
-            {/* Right fade overlay */}
-            <div className="absolute right-0 top-0 bottom-8 w-16 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none" />
           </div>
         </div>
 
