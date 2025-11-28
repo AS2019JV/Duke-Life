@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Clock, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
 import { supabase, Experience } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
@@ -21,6 +21,15 @@ export default function ReservationModal({
   const [error, setError] = useState('');
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [step, setStep] = useState<'date' | 'time' | 'confirm'>('date');
+
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [onClose]);
 
   const getPrice = () => {
     if (user?.membership_type === 'black_elite' && experience.black_elite_included) {
@@ -91,8 +100,6 @@ export default function ReservationModal({
   );
 
   const generateCalendarDays = () => {
-    const year = currentMonth.getFullYear();
-    const month = currentMonth.getMonth();
     const daysInMonth = getDaysInMonth(currentMonth);
     const firstDay = getFirstDayOfMonth(currentMonth);
     const days = [];
@@ -107,6 +114,7 @@ export default function ReservationModal({
 
     return days;
   };
+
 
   const isDateDisabled = (day: number | null) => {
     if (!day) return true;
@@ -152,16 +160,27 @@ export default function ReservationModal({
     : '';
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end z-50">
-      <div className="w-full bg-gradient-to-b from-[#0a0a0a] to-[#0a0a0a] border-t border-white/10 rounded-t-3xl animate-in slide-in-from-bottom duration-300 max-h-[92vh] flex flex-col">
-        <div className="sticky top-0 bg-[#0a0a0a] border-b border-white/10 p-4 flex justify-between items-center">
-          <div>
+    <div 
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 pb-24"
+      onClick={onClose}
+    >
+      <div 
+        className="w-full max-w-md bg-gradient-to-b from-[#0a0a0a] to-[#0a0a0a] border border-white/10 rounded-3xl animate-in zoom-in-95 fade-in duration-300 max-h-[85vh] flex flex-col shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="sticky top-0 bg-[#0a0a0a] border-b border-white/10 p-4 flex justify-between items-center rounded-t-3xl">
+          <div className="flex-1">
             <h2 className="text-xl font-bold text-white tracking-tight">
               {step === 'date' && 'Elige una fecha'}
               {step === 'time' && 'Elige una hora'}
               {step === 'confirm' && 'Confirma tu reserva'}
             </h2>
             <p className="text-xs text-gray-500 mt-1 font-light">{experience.title}</p>
+            <div className="flex gap-1.5 mt-3">
+              <div className={`h-1 rounded-full transition-all duration-300 ${step === 'date' ? 'bg-yellow-500 w-8' : 'bg-white/20 w-6'}`} />
+              <div className={`h-1 rounded-full transition-all duration-300 ${step === 'time' ? 'bg-yellow-500 w-8' : 'bg-white/20 w-6'}`} />
+              <div className={`h-1 rounded-full transition-all duration-300 ${step === 'confirm' ? 'bg-yellow-500 w-8' : 'bg-white/20 w-6'}`} />
+            </div>
           </div>
           <button
             onClick={onClose}
@@ -173,7 +192,7 @@ export default function ReservationModal({
 
         <div className="flex-1 overflow-y-auto">
           {step === 'date' && (
-            <div className="p-6 space-y-6">
+            <div className="p-6 space-y-6 animate-in fade-in duration-300">
               <div className="flex justify-between items-center">
                 <button
                   onClick={handlePrevMonth}
@@ -200,14 +219,17 @@ export default function ReservationModal({
                 {calendarDays.map((day, idx) => (
                   <button
                     key={idx}
-                    onClick={() => day && handleDateSelect(day)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      day && handleDateSelect(day);
+                    }}
                     disabled={isDateDisabled(day)}
-                    className={`aspect-square rounded-xl text-sm font-semibold transition-all tracking-wide ${
+                    className={`aspect-square rounded-xl text-sm font-semibold transition-all tracking-wide active:scale-95 ${
                       isDateSelected(day)
                         ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-black shadow-lg shadow-yellow-500/30'
                         : isDateDisabled(day)
                         ? 'text-gray-600 cursor-not-allowed'
-                        : 'bg-[#1a1a1a] text-white hover:bg-[#2a2a2a] border border-white/10 hover:border-yellow-600/50'
+                        : 'bg-[#1a1a1a] text-white hover:bg-[#2a2a2a] border border-white/10 hover:border-yellow-600/50 hover:scale-105'
                     }`}
                   >
                     {day}
@@ -218,7 +240,7 @@ export default function ReservationModal({
           )}
 
           {step === 'time' && (
-            <div className="p-6 space-y-6">
+            <div className="p-6 space-y-6 animate-in fade-in duration-300">
               <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-4">
                 <p className="text-xs text-gray-500 mb-2 font-light">Fecha seleccionada</p>
                 <p className="text-white font-bold text-lg capitalize tracking-wide">{selectedDateFormatted}</p>
@@ -230,14 +252,15 @@ export default function ReservationModal({
                   {['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'].map((time) => (
                     <button
                       key={time}
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setSelectedTime(time);
                         setTimeout(() => setStep('confirm'), 300);
                       }}
-                      className={`py-3 px-2 rounded-xl text-sm font-semibold transition-all tracking-wide ${
+                      className={`py-3 px-2 rounded-xl text-sm font-semibold transition-all tracking-wide active:scale-95 ${
                         selectedTime === time
                           ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-black shadow-lg shadow-yellow-500/30'
-                          : 'bg-[#1a1a1a] text-gray-300 border border-white/10 hover:border-yellow-600/50 hover:bg-[#2a2a2a]'
+                          : 'bg-[#1a1a1a] text-gray-300 border border-white/10 hover:border-yellow-600/50 hover:bg-[#2a2a2a] hover:scale-105'
                       }`}
                     >
                       {time}
@@ -249,7 +272,7 @@ export default function ReservationModal({
           )}
 
           {step === 'confirm' && (
-            <div className="p-6 space-y-6">
+            <div className="p-6 space-y-6 animate-in fade-in duration-300">
               <div className="space-y-4">
                 <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-5">
                   <p className="text-xs text-gray-500 uppercase tracking-widest font-medium mb-3">Experiencia</p>
@@ -292,11 +315,11 @@ export default function ReservationModal({
           )}
         </div>
 
-        <div className="sticky bottom-0 bg-gradient-to-t from-[#0a0a0a] to-[#0a0a0a]/80 border-t border-white/10 p-4 flex gap-3">
+        <div className="sticky bottom-0 bg-gradient-to-t from-[#0a0a0a] to-[#0a0a0a]/80 border-t border-white/10 p-4 flex gap-3 rounded-b-3xl">
           {step !== 'date' && (
             <button
               onClick={() => setStep(step === 'time' ? 'date' : 'time')}
-              className="flex-1 bg-gray-700 text-white font-medium py-3 rounded-xl hover:bg-gray-600 transition-colors tracking-wide"
+              className="flex-1 bg-gray-700 text-white font-medium py-3 rounded-xl hover:bg-gray-600 transition-all tracking-wide hover:scale-105 active:scale-95"
             >
               Atrás
             </button>
@@ -304,7 +327,7 @@ export default function ReservationModal({
           {step === 'date' && (
             <button
               onClick={onClose}
-              className="flex-1 bg-gray-700 text-white font-medium py-3 rounded-xl hover:bg-gray-600 transition-colors tracking-wide"
+              className="flex-1 bg-gray-700 text-white font-medium py-3 rounded-xl hover:bg-gray-600 transition-all tracking-wide hover:scale-105 active:scale-95"
             >
               Cancelar
             </button>
@@ -313,14 +336,14 @@ export default function ReservationModal({
             <>
               <button
                 onClick={() => setStep('time')}
-                className="flex-1 bg-gray-700 text-white font-medium py-3 rounded-xl hover:bg-gray-600 transition-colors tracking-wide"
+                className="flex-1 bg-gray-700 text-white font-medium py-3 rounded-xl hover:bg-gray-600 transition-all tracking-wide hover:scale-105 active:scale-95"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleReserve}
                 disabled={loading}
-                className="flex-1 bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-semibold py-3 rounded-xl hover:shadow-lg hover:shadow-yellow-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 tracking-wide"
+                className="flex-1 bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-semibold py-3 rounded-xl hover:shadow-lg hover:shadow-yellow-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 tracking-wide hover:scale-105 active:scale-95"
               >
                 {loading ? (
                   <>
@@ -340,7 +363,7 @@ export default function ReservationModal({
             <button
               onClick={() => setStep(step === 'time' ? 'date' : 'confirm')}
               disabled={step === 'time' && !selectedTime}
-              className="flex-1 bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-semibold py-3 rounded-xl hover:shadow-lg hover:shadow-yellow-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed tracking-wide"
+              className="flex-1 bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-semibold py-3 rounded-xl hover:shadow-lg hover:shadow-yellow-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed tracking-wide hover:scale-105 active:scale-95"
             >
               Siguiente
             </button>

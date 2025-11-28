@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Course } from '../lib/supabase';
+import CoursePlayerModal from '../components/CoursePlayerModal';
 
 export default function CursosPage() {
   const { user } = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
   useEffect(() => {
     fetchCourses();
@@ -82,8 +84,8 @@ export default function CursosPage() {
                 </div>
 
                 <button
-                  onClick={() => alert('Reproductor de curso próximamente')}
-                  className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-semibold py-2 rounded-lg text-sm hover:shadow-lg hover:shadow-yellow-500/50 transition-all tracking-wide"
+                  onClick={() => setSelectedCourse(course)}
+                  className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-semibold py-2 rounded-lg text-sm hover:shadow-lg hover:shadow-yellow-500/50 transition-all tracking-wide hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Comenzar Curso
                 </button>
@@ -92,6 +94,13 @@ export default function CursosPage() {
           ))
         )}
       </main>
+
+      {selectedCourse && (
+        <CoursePlayerModal
+          course={selectedCourse}
+          onClose={() => setSelectedCourse(null)}
+        />
+      )}
     </div>
   );
 }

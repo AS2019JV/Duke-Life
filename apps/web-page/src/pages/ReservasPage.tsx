@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Reservation } from '../lib/supabase';
+import ReservationDetailModal from '../components/ReservationDetailModal';
 
 let subscriptionUnsubscribe: (() => void) | null = null;
 
@@ -9,6 +10,7 @@ export default function ReservasPage() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
+  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -146,10 +148,8 @@ export default function ReservasPage() {
                     {reservation.experiences?.destinations?.name}
                   </p>
                   <button
-                    onClick={() =>
-                      alert('Ver detalles: QR, ubicación, información de contacto')
-                    }
-                    className="w-full bg-transparent border border-gold-400/40 text-gold-400 hover:bg-gold-400 hover:text-black font-light py-3 rounded-full text-[10px] transition-all duration-500 tracking-widest uppercase"
+                    onClick={() => setSelectedReservation(reservation)}
+                    className="w-full bg-transparent border border-gold-400/40 text-gold-400 hover:bg-gold-400 hover:text-black font-light py-3 rounded-full text-[10px] transition-all duration-500 tracking-widest uppercase hover:scale-105 active:scale-95"
                   >
                     Ver Detalles
                   </button>
@@ -159,6 +159,13 @@ export default function ReservasPage() {
           </div>
         )}
       </main>
+
+      {selectedReservation && (
+        <ReservationDetailModal
+          reservation={selectedReservation}
+          onClose={() => setSelectedReservation(null)}
+        />
+      )}
     </div>
   );
 }
