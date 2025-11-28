@@ -24,14 +24,12 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
     fullName: user?.full_name || '',
     phone: user?.phone || '',
     email: user?.email || '',
-    whatsapp: '',
     language: 'es',
     timezone: 'America/New_York',
     defaultDestination: 'dubai',
     notifications: {
       push: true,
       email: true,
-      whatsapp: false,
       frequency: 'daily'
     },
     concierge: {
@@ -101,7 +99,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
 
   return (
     <div 
-      className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[100] p-4 pb-20"
       onClick={onClose}
     >
       <div 
@@ -173,21 +171,8 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
                       />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-xs text-white/40 uppercase tracking-wider">WhatsApp</label>
-                    <div className="relative">
-                      <MessageCircle size={16} className="absolute left-3 top-3 text-white/40" />
-                      <input 
-                        type="tel" 
-                        value={formData.whatsapp}
-                        placeholder="+1 (234) 567-8900"
-                        onChange={(e) => setFormData({...formData, whatsapp: e.target.value})}
-                        className="w-full bg-black/40 border border-white/10 rounded-lg py-2.5 pl-10 pr-4 text-sm text-white focus:border-gold-400/50 focus:outline-none transition-colors"
-                      />
-                    </div>
                   </div>
                 </div>
-              </div>
             )}
           </div>
 
@@ -312,27 +297,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
                     </label>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-                        <MessageCircle size={14} className="text-white" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-white font-medium">WhatsApp</p>
-                        <p className="text-xs text-white/40">Mensajes directos del Concierge</p>
-                      </div>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        checked={formData.notifications.whatsapp}
-                        onChange={(e) => setFormData({...formData, notifications: {...formData.notifications, whatsapp: e.target.checked}})}
-                        className="sr-only peer" 
-                      />
-                      <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gold-400"></div>
-                    </label>
                   </div>
-                </div>
 
                 <div className="pt-4 border-t border-white/5">
                   <label className="text-xs text-white/40 uppercase tracking-wider block mb-2">Frecuencia</label>
@@ -466,7 +431,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
                 ) : (
                   <>
                     <Check size={16} />
-                    Guardar Cambios
+                    Guardar
                   </>
                 )}
               </button>
