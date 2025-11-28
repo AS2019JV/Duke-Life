@@ -167,7 +167,7 @@ export default function HomePage({ onPageChange }: HomePageProps) {
             <p className="text-[10px] font-medium text-gold-400/80 tracking-[0.3em] uppercase mb-1">
               {getGreeting()}
             </p>
-            <h1 className="text-2xl font-light text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/80 tracking-wide">
+            <h1 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/80 tracking-wide">
               {user?.full_name?.split(' ')[0] || 'Miembro'}
             </h1>
           </div>
@@ -184,7 +184,7 @@ export default function HomePage({ onPageChange }: HomePageProps) {
             
             <button
               onClick={() => onPageChange('perfil')}
-              className="relative w-10 h-10 rounded-full p-[1px] bg-gradient-to-b from-gold-400 to-gold-900 shadow-lg shadow-gold-900/20 group"
+              className="relative w-12 h-12 rounded-full p-[1px] bg-gradient-to-b from-gold-400 to-gold-900 shadow-lg shadow-gold-900/20 group"
             >
               <div className="w-full h-full rounded-full bg-black flex items-center justify-center overflow-hidden relative">
                 {user?.avatar_url ? (

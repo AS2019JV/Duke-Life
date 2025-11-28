@@ -81,7 +81,7 @@ export default function CursosPage() {
               <div className="absolute bottom-0 left-0 right-0 p-6 space-y-4">
                 <div className="space-y-2">
                   <h3 className="text-2xl font-bold text-white tracking-tight leading-tight">{course.title}</h3>
-                  <p className="text-xs text-gold-400/80 font-light tracking-widest uppercase">Mentor: {course.mentor}</p>
+                  <p className="text-xs text-gold-400/80 font-medium tracking-widest uppercase">Mentor: {course.mentor}</p>
                 </div>
 
                 <div className="flex items-center justify-between gap-3">

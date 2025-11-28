@@ -197,7 +197,7 @@ export default function PerfilPage() {
 
             {/* Name & Email */}
             <div className="text-center space-y-2">
-              <h1 className="text-3xl font-extralight text-white tracking-wide">
+              <h1 className="text-3xl font-semibold text-white tracking-wide">
                 {user?.full_name || 'Miembro Duke'}
               </h1>
               <p className="text-sm text-white/50 font-light tracking-wide">
@@ -288,7 +288,7 @@ export default function PerfilPage() {
               <Award className="w-5 h-5 text-gold-400" />
             </div>
             <div>
-              <span className="font-light tracking-wide text-white">Mis Beneficios</span>
+              <span className="font-medium tracking-wide text-white">Mis Beneficios</span>
               <p className="text-xs text-white/40 font-light mt-0.5">
                 Explora tus ventajas exclusivas
               </p>
@@ -306,7 +306,7 @@ export default function PerfilPage() {
               <CreditCard className="w-5 h-5 text-gold-400" />
             </div>
             <div>
-              <span className="font-light tracking-wide text-white">Detalles de Membresía</span>
+              <span className="font-medium tracking-wide text-white">Detalles de Membresía</span>
               <p className="text-xs text-white/40 font-light mt-0.5">
                 Gestiona tu suscripción
               </p>
@@ -324,7 +324,7 @@ export default function PerfilPage() {
               <Settings className="w-5 h-5 text-gold-400" />
             </div>
             <div>
-              <span className="font-light tracking-wide text-white">Configuración</span>
+              <span className="font-medium tracking-wide text-white">Configuración</span>
               <p className="text-xs text-white/40 font-light mt-0.5">
                 Preferencias y privacidad
               </p>
@@ -346,7 +346,7 @@ export default function PerfilPage() {
               <LogOut className="w-5 h-5 text-red-400" />
             </div>
             <div>
-              <span className="font-light tracking-wide">Cerrar Sesión</span>
+              <span className="font-medium tracking-wide">Cerrar Sesión</span>
               <p className="text-xs text-red-400/60 font-light mt-0.5">
                 Hasta pronto
               </p>
