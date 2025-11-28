@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Destination, Experience, Category } from '../lib/supabase';
 import ExperienceDetailPage from './ExperienceDetailPage';
@@ -16,6 +16,7 @@ export default function HomePage({ onPageChange }: HomePageProps) {
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [selectedExperience, setSelectedExperience] = useState<Experience | null>(null);
   const [showDetailPage, setShowDetailPage] = useState(false);
+  const experiencesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchDestinations();
@@ -148,12 +149,16 @@ export default function HomePage({ onPageChange }: HomePageProps) {
             </div>
           </div>
           
-          {/* Categories Carousel with Swipe Support */}
+          
+          {/* Categories Carousel with Center Focus */}
           <div 
-            className="flex space-x-4 overflow-x-auto pb-8 -mx-6 px-6 no-scrollbar snap-x snap-mandatory scroll-smooth touch-pan-x"
+            className="relative flex justify-center items-center overflow-x-auto pb-8 -mx-6 px-6 no-scrollbar snap-x snap-mandatory scroll-smooth touch-pan-x"
             style={{ WebkitOverflowScrolling: 'touch' }}
           >
-            {categories.map((category) => {
+            {/* Left fade overlay */}
+            <div className="absolute left-0 top-0 bottom-8 w-20 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none" />
+            
+            {categories.map((category, index) => {
               const categoryImages: Record<string, string> = {
                 'Bienestar': 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&q=80&w=800',
                 'Lujo': 'https://images.unsplash.com/photo-1565623833408-d77e39b88af6?auto=format&fit=crop&q=80&w=800',
@@ -162,15 +167,29 @@ export default function HomePage({ onPageChange }: HomePageProps) {
               };
 
               const isSelected = selectedCategory === category.id;
+              const isCenterFocused = index === Math.floor(categories.length / 2);
               
               return (
                 <button
                   key={category.id}
-                  onClick={() => setSelectedCategory(isSelected ? '' : category.id)}
-                  className={`relative flex-shrink-0 w-40 h-56 rounded-xl overflow-hidden transition-all duration-500 snap-center group ${
+                  onClick={() => {
+                    setSelectedCategory(isSelected ? '' : category.id);
+                    // Smooth scroll to experiences section
+                    setTimeout(() => {
+                      experiencesRef.current?.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                      });
+                    }, 300);
+                  }}
+                  className={`relative flex-shrink-0 rounded-xl overflow-hidden transition-all duration-500 snap-center group ${
+                    isCenterFocused
+                      ? 'w-48 h-64 mx-2'
+                      : 'w-40 h-56 mx-1 opacity-40 hover:opacity-70'
+                  } ${
                     isSelected 
-                      ? 'ring-2 ring-gold-400 scale-105 shadow-xl shadow-gold-900/40' 
-                      : 'hover:scale-105 hover:shadow-lg hover:shadow-black/50 opacity-80 hover:opacity-100'
+                      ? 'ring-2 ring-gold-400 scale-105 shadow-xl shadow-gold-900/40 opacity-100' 
+                      : 'hover:scale-105 hover:shadow-lg hover:shadow-black/50'
                   }`}
                 >
                   <img 
@@ -195,26 +214,31 @@ export default function HomePage({ onPageChange }: HomePageProps) {
                 </button>
               );
             })}
+            
+            {/* Right fade overlay */}
+            <div className="absolute right-0 top-0 bottom-8 w-20 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none" />
           </div>
         </div>
 
 
         {/* Experiences Section */}
-        <div className="space-y-5">
+        <div ref={experiencesRef} className="space-y-5 scroll-mt-6">
           {/* Section Header with Luxury Typography */}
-          <div className="flex items-center gap-4 mb-8">
-            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold-400/30 to-gold-300/20" />
-            <div className="flex items-center gap-3">
+          <div className="mb-8">
+            <div className="flex items-center gap-4 mb-3">
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold-400/30 to-gold-300/20" />
               <h2 className="text-2xl font-light text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-gold-400 to-gold-300 tracking-[0.15em] uppercase">
                 Experiencias Destacadas
               </h2>
-              {selectedCategory && (
+              <div className="h-px flex-1 bg-gradient-to-r from-gold-300/20 via-gold-400/30 to-transparent" />
+            </div>
+            {selectedCategory && (
+              <div className="flex justify-center">
                 <span className={`text-[9px] font-light tracking-widest uppercase px-3 py-1 rounded-full bg-gold-400/10 text-gold-300 border border-gold-400/20`}>
                   {categories.find(c => c.id === selectedCategory)?.name}
                 </span>
-              )}
-            </div>
-            <div className="h-px flex-1 bg-gradient-to-r from-gold-300/20 via-gold-400/30 to-transparent" />
+              </div>
+            )}
           </div>
 
           {experiences.map((exp) => {
