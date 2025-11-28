@@ -49,7 +49,8 @@ export default function HomePage({ onPageChange }: HomePageProps) {
       .order('name');
 
     if (data) {
-      setCategories(data);
+      // Filter out Educación category
+      setCategories(data.filter(cat => cat.name !== 'Educación'));
     }
   };
 
@@ -119,19 +120,39 @@ export default function HomePage({ onPageChange }: HomePageProps) {
 
       <main className="p-6 space-y-10">
         <div>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-extralight text-gold-400/90 tracking-wide">Categorías</h2>
-            {selectedCategory && (
-              <button
-                onClick={() => setSelectedCategory('')}
-                className="text-[9px] text-white/40 hover:text-gold-400 font-light tracking-widest uppercase transition-colors"
-              >
-                Ver Todas
-              </button>
-            )}
+          {/* Section Header with Luxury Typography */}
+          <div className="mb-8">
+            <div className="flex items-center gap-4 mb-2">
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold-400/30 to-transparent" />
+              <h2 className="text-2xl font-light text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-gold-400 to-gold-300 tracking-[0.15em] uppercase">
+                Categorías
+              </h2>
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold-400/30 to-transparent" />
+            </div>
+            
+            {/* Integrated Destinations Filter */}
+            <div className="flex justify-center gap-2 mt-6">
+              {destinations.map((dest) => (
+                <button
+                  key={dest.id}
+                  onClick={() => setSelectedDestination(dest.id)}
+                  className={`px-4 py-1.5 rounded-full text-[9px] font-light tracking-[0.2em] uppercase transition-all duration-300 ${
+                    selectedDestination === dest.id
+                      ? 'bg-gradient-to-r from-gold-400/20 to-gold-500/10 text-gold-300 border border-gold-400/40 shadow-lg shadow-gold-900/20'
+                      : 'text-white/40 hover:text-gold-400/70 border border-white/5 hover:border-gold-400/20'
+                  }`}
+                >
+                  {dest.name}
+                </button>
+              ))}
+            </div>
           </div>
           
-          <div className="flex space-x-4 overflow-x-auto pb-8 -mx-6 px-6 no-scrollbar snap-x snap-mandatory">
+          {/* Categories Carousel with Swipe Support */}
+          <div 
+            className="flex space-x-4 overflow-x-auto pb-8 -mx-6 px-6 no-scrollbar snap-x snap-mandatory scroll-smooth touch-pan-x"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
             {categories.map((category) => {
               const categoryImages: Record<string, string> = {
                 'Bienestar': 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&q=80&w=800',
@@ -177,41 +198,23 @@ export default function HomePage({ onPageChange }: HomePageProps) {
           </div>
         </div>
 
-        <div className="space-y-4">
-          <h2 className="text-xl font-extralight text-gold-400/90 tracking-wide">Destinos</h2>
-          <div className="flex space-x-3 overflow-x-auto pb-2 no-scrollbar">
-            {destinations.map((dest) => (
-              <button
-                key={dest.id}
-                onClick={() => setSelectedDestination(dest.id)}
-                className={`flex-shrink-0 font-light px-5 py-2 rounded-full text-[10px] transition-all duration-300 tracking-widest uppercase ${
-                  selectedDestination === dest.id
-                    ? 'bg-gold-400 text-black'
-                    : 'bg-white/5 border border-white/10 text-white/60 hover:border-gold-400/40'
-                }`}
-              >
-                {dest.name}
-              </button>
-            ))}
-          </div>
-        </div>
 
+        {/* Experiences Section */}
         <div className="space-y-5">
-          <div className="flex items-center gap-3">
-            <h2 className="text-xl font-extralight text-gold-400/90 tracking-wide">Experiencias Destacadas</h2>
-            {selectedCategory && (
-              <span className={`text-[9px] font-light tracking-widest uppercase px-3 py-1 rounded-full ${
-                selectedCategory === categories.find(c => c.name === 'Bienestar')?.id
-                  ? 'bg-rose-400/20 text-rose-300 border border-rose-400/30'
-                  : selectedCategory === categories.find(c => c.name === 'Lujo')?.id
-                  ? 'bg-gold-400/20 text-gold-300 border border-gold-400/30'
-                  : selectedCategory === categories.find(c => c.name === 'Gastronomía')?.id
-                  ? 'bg-orange-400/20 text-orange-300 border border-orange-400/30'
-                  : 'bg-emerald-400/20 text-emerald-300 border border-emerald-400/30'
-              }`}>
-                {categories.find(c => c.id === selectedCategory)?.name}
-              </span>
-            )}
+          {/* Section Header with Luxury Typography */}
+          <div className="flex items-center gap-4 mb-8">
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold-400/30 to-gold-300/20" />
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl font-light text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-gold-400 to-gold-300 tracking-[0.15em] uppercase">
+                Experiencias Destacadas
+              </h2>
+              {selectedCategory && (
+                <span className={`text-[9px] font-light tracking-widest uppercase px-3 py-1 rounded-full bg-gold-400/10 text-gold-300 border border-gold-400/20`}>
+                  {categories.find(c => c.id === selectedCategory)?.name}
+                </span>
+              )}
+            </div>
+            <div className="h-px flex-1 bg-gradient-to-r from-gold-300/20 via-gold-400/30 to-transparent" />
           </div>
 
           {experiences.map((exp) => {
