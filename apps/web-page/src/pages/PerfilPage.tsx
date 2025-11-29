@@ -200,7 +200,7 @@ export default function PerfilPage() {
               <h1 className="text-3xl font-semibold text-white tracking-wide">
                 {user?.full_name || 'Miembro Duke'}
               </h1>
-              <p className="text-sm text-white/50 font-light tracking-wide">
+              <p className="text-sm text-white/50 font-medium tracking-wide">
                 {user?.email}
               </p>
             </div>
@@ -219,7 +219,7 @@ export default function PerfilPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Sparkles className={`w-5 h-5 ${colors.icon}`} />
-                  <span className={`text-xs font-light tracking-widest uppercase ${colors.text}`}>
+                  <span className={`text-xs font-semibold tracking-widest uppercase ${colors.text}`}>
                     Membresía
                   </span>
                 </div>
@@ -231,14 +231,14 @@ export default function PerfilPage() {
                 <h2 className={`text-2xl font-bold tracking-wider ${colors.text}`}>
                   {getMembershipDisplay()}
                 </h2>
-                <p className={`text-xs font-light mt-1 ${colors.text} opacity-80`}>
+                <p className={`text-xs font-medium mt-1 ${colors.text} opacity-80`}>
                   Miembro desde {new Date(user?.created_at || '').getFullYear()}
                 </p>
               </div>
 
               {/* Member ID */}
               <div className="pt-4 border-t border-white/10">
-                <p className={`text-xs font-light tracking-wider ${colors.text} opacity-60`}>
+                <p className={`text-xs font-medium tracking-wider ${colors.text} opacity-60`}>
                   ID: {user?.id.slice(0, 8).toUpperCase()}
                 </p>
               </div>
@@ -250,21 +250,21 @@ export default function PerfilPage() {
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 text-center space-y-2">
               <Calendar className="w-5 h-5 text-gold-400 mx-auto" />
               <p className="text-2xl font-light text-white">{reservationCount}</p>
-              <p className="text-[10px] text-white/50 font-light tracking-wider uppercase">
+              <p className="text-[10px] text-white/50 font-medium tracking-wider uppercase">
                 Reservas
               </p>
             </div>
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 text-center space-y-2">
               <TrendingUp className="w-5 h-5 text-gold-400 mx-auto" />
               <p className="text-2xl font-light text-white">{upcomingCount}</p>
-              <p className="text-[10px] text-white/50 font-light tracking-wider uppercase">
+              <p className="text-[10px] text-white/50 font-medium tracking-wider uppercase">
                 Próximas
               </p>
             </div>
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 text-center space-y-2">
               <Star className="w-5 h-5 text-gold-400 mx-auto" />
               <p className="text-2xl font-light text-white">VIP</p>
-              <p className="text-[10px] text-white/50 font-light tracking-wider uppercase">
+              <p className="text-[10px] text-white/50 font-medium tracking-wider uppercase">
                 Estatus
               </p>
             </div>
@@ -274,7 +274,7 @@ export default function PerfilPage() {
 
       {/* Menu Section */}
       <main className="p-6 space-y-3">
-        <h3 className="text-xs font-medium text-gold-400/70 tracking-widest uppercase mb-4 px-2">
+        <h3 className="text-xs font-semibold text-gold-400/70 tracking-widest uppercase mb-4 px-2">
           Configuración
         </h3>
 
@@ -288,8 +288,8 @@ export default function PerfilPage() {
               <Award className="w-5 h-5 text-gold-400" />
             </div>
             <div>
-              <span className="font-medium tracking-wide text-white">Mis Beneficios</span>
-              <p className="text-xs text-white/40 font-light mt-0.5">
+              <span className="font-semibold tracking-wide text-white">Mis Beneficios</span>
+              <p className="text-xs text-white/40 font-medium mt-0.5">
                 Explora tus ventajas exclusivas
               </p>
             </div>
@@ -306,8 +306,8 @@ export default function PerfilPage() {
               <CreditCard className="w-5 h-5 text-gold-400" />
             </div>
             <div>
-              <span className="font-medium tracking-wide text-white">Detalles de Membresía</span>
-              <p className="text-xs text-white/40 font-light mt-0.5">
+              <span className="font-semibold tracking-wide text-white">Detalles de Membresía</span>
+              <p className="text-xs text-white/40 font-medium mt-0.5">
                 Gestiona tu suscripción
               </p>
             </div>
@@ -324,8 +324,8 @@ export default function PerfilPage() {
               <Settings className="w-5 h-5 text-gold-400" />
             </div>
             <div>
-              <span className="font-medium tracking-wide text-white">Configuración</span>
-              <p className="text-xs text-white/40 font-light mt-0.5">
+              <span className="font-semibold tracking-wide text-white">Configuración</span>
+              <p className="text-xs text-white/40 font-medium mt-0.5">
                 Preferencias y privacidad
               </p>
             </div>
@@ -346,8 +346,8 @@ export default function PerfilPage() {
               <LogOut className="w-5 h-5 text-red-400" />
             </div>
             <div>
-              <span className="font-medium tracking-wide">Cerrar Sesión</span>
-              <p className="text-xs text-red-400/60 font-light mt-0.5">
+              <span className="font-semibold tracking-wide">Cerrar Sesión</span>
+              <p className="text-xs text-red-400/60 font-bold mt-0.5">
                 Hasta pronto
               </p>
             </div>
