@@ -143,7 +143,7 @@ export default function PerfilPage() {
   const colors = getMembershipColor();
 
   return (
-    <div className="flex-1 overflow-y-auto pb-24 bg-black">
+    <div className="flex-1 overflow-y-auto pb-24">
       {/* Hero Section with Membership Card */}
       <div className="relative overflow-hidden">
         {/* Background Gradient */}

@@ -14,7 +14,7 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-black to-gray-900">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 
             className="text-5xl md:text-7xl font-extralight tracking-[0.15em] text-gold-400 mb-8"

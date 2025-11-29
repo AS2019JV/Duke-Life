@@ -161,7 +161,7 @@ export default function HomePage({ onPageChange }: HomePageProps) {
 
   return (
     <div className="flex-1 overflow-y-auto pb-24">
-      <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-2xl border-b border-white/5 px-6 py-5 transition-all duration-300">
+      <header className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5 px-6 py-5 transition-all duration-300">
         <div className="flex justify-between items-center">
           <div className="flex flex-col">
             <p className="text-[10px] font-medium text-gold-400/80 tracking-[0.3em] uppercase mb-1">
