@@ -1,4 +1,4 @@
-import { Home, Calendar, MessageCircle, BookOpen, User } from 'lucide-react';
+import { Home, Calendar, BookOpen, User, UserCircle } from 'lucide-react';
 
 interface NavigationProps {
   activePage: string;
@@ -9,9 +9,9 @@ export default function Navigation({ activePage, onPageChange }: NavigationProps
   const navItems = [
     { id: 'home', icon: Home, label: 'Home' },
     { id: 'reservas', icon: Calendar, label: 'Reservas' },
-    { id: 'concierge', icon: MessageCircle, label: 'Concierge', special: true },
+    { id: 'concierge', icon: User, label: 'Concierge', special: true },
     { id: 'cursos', icon: BookOpen, label: 'Cursos' },
-    { id: 'perfil', icon: User, label: 'Perfil' },
+    { id: 'perfil', icon: UserCircle, label: 'Perfil' },
   ];
 
   return (
@@ -30,13 +30,13 @@ export default function Navigation({ activePage, onPageChange }: NavigationProps
               >
                 <div className={`rounded-full p-4 shadow-lg transition-all duration-500 group-active:scale-95 group-hover:scale-110 ${
                   isActive 
-                    ? 'bg-zinc-900/80 border border-gold-400/20 shadow-gold-400/20' 
-                    : 'bg-gold-400 hover:bg-gold-300 text-black shadow-gold-900/20 group-hover:shadow-xl group-hover:shadow-gold-400/30'
+                    ? 'bg-black border border-white/40 shadow-white/50 shadow-xl' 
+                    : 'bg-black border border-white/20 shadow-white/30 group-hover:shadow-white/50 group-hover:shadow-xl'
                 }`}>
-                  <Icon className={`w-7 h-7 ${isActive ? 'text-gold-400' : 'text-black'}`} />
+                  <Icon className="w-7 h-7 text-white" />
                 </div>
                 <span className={`text-[9px] font-light mt-2 tracking-widest uppercase transition-colors duration-300 ${
-                  isActive ? 'text-gold-400' : 'text-white/60'
+                  isActive ? 'text-white' : 'text-white/60'
                 }`}>{item.label}</span>
               </button>
             );

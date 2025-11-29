@@ -163,15 +163,40 @@ export default function HomePage({ onPageChange }: HomePageProps) {
     <div className="flex-1 overflow-y-auto pb-24">
       <header className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5 px-6 py-5 transition-all duration-300">
         <div className="flex justify-between items-center">
-          <div className="flex flex-col">
-            <p className="text-[10px] font-medium text-gold-400/80 tracking-[0.3em] uppercase mb-1">
-              {getGreeting()}
-            </p>
-            <h1 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/80 tracking-wide">
-              {user?.full_name?.split(' ')[0] || 'Miembro'}
-            </h1>
+          {/* Centered User Name with Icon and Online Status */}
+          <div className="flex-1 flex justify-center items-center">
+            <div className="flex items-center gap-3">
+              {/* User Icon with Green Online Indicator */}
+              <div className="relative">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-white/10 to-white/5 border border-white/20 flex items-center justify-center shadow-lg shadow-white/10">
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    width="20" 
+                    height="20" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                    className="text-white"
+                  >
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                </div>
+                {/* Green Online Indicator */}
+                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-black shadow-lg shadow-emerald-400/50 animate-pulse" />
+              </div>
+              
+              {/* User Name */}
+              <h1 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/80 tracking-wide">
+                {user?.full_name?.split(' ')[0] || 'Miembro'}
+              </h1>
+            </div>
           </div>
           
+          {/* Right Side: Membership Badge and Profile Avatar */}
           <div className="flex items-center gap-4">
             <div className="flex flex-col items-end">
               <div className="px-3 py-1 rounded-full bg-gradient-to-r from-black via-zinc-900 to-black border border-gold-400/30 shadow-[0_0_15px_rgba(250,204,21,0.1)] flex items-center gap-2">

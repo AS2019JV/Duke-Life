@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Reservation } from '../lib/supabase';
 import ReservationDetailModal from '../components/ReservationDetailModal';
-import { Calendar, MapPin, MessageCircle, Clock, CheckCircle2, AlertCircle, XCircle } from 'lucide-react';
+import { Calendar, MapPin, Clock, CheckCircle2, AlertCircle, XCircle, User } from 'lucide-react';
 
 let subscriptionUnsubscribe: (() => void) | null = null;
 
@@ -191,7 +191,7 @@ export default function ReservasPage() {
                   <div className="p-6 pt-4 space-y-5 relative">
                     <div className="space-y-3">
                       {/* Date */}
-                      <div className="flex items-center gap-2 text-gold-400/90 text-xs font-medium tracking-wider uppercase">
+                      <div className="flex items-center gap-2 text-blue-400 text-xs font-medium tracking-wider uppercase">
                         <Calendar size={14} />
                         {formatDate(reservation.reservation_date)}
                       </div>
@@ -219,10 +219,10 @@ export default function ReservasPage() {
                         Ver Detalles
                       </button>
                       <button 
-                        className="w-14 h-14 rounded-full bg-gradient-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center text-gold-400 hover:text-white hover:border-gold-400/50 transition-all duration-300 group shadow-lg shadow-black/50"
+                        className="w-14 h-14 rounded-full bg-black border border-white/20 flex items-center justify-center text-white hover:text-white hover:border-white/40 transition-all duration-300 group shadow-lg shadow-white/30 hover:shadow-white/50 hover:shadow-xl"
                         onClick={() => alert('Contactando Concierge...')}
                       >
-                        <MessageCircle size={24} className="group-hover:scale-110 transition-transform" />
+                        <User size={24} className="group-hover:scale-110 transition-transform" />
                       </button>
                     </div>
                   </div>
