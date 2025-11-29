@@ -18,7 +18,7 @@ export default function HeroCarousel() {
   }, []);
 
   return (
-    <div className="relative w-full h-[300px] rounded-3xl overflow-hidden mb-8 shadow-2xl shadow-gold-900/20 group">
+    <div className="relative w-full overflow-hidden" style={{ aspectRatio: '21/9' }}>
       {/* Images */}
       {IMAGES.map((img, index) => (
         <div
@@ -30,27 +30,12 @@ export default function HeroCarousel() {
           <img
             src={img}
             alt={`Luxury Experience ${index + 1}`}
-            className="w-full h-full object-cover transform scale-105 group-hover:scale-110 transition-transform duration-[2000ms]"
+            className="w-full h-full object-cover"
           />
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+          {/* Luxury Black Gradient Fade - Bottom to Top */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
         </div>
       ))}
-
-      {/* Indicators */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-        {IMAGES.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentIndex(index)}
-            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-              index === currentIndex 
-                ? 'bg-gold-400 w-4' 
-                : 'bg-white/30 hover:bg-white/50'
-            }`}
-          />
-        ))}
-      </div>
     </div>
   );
 }
