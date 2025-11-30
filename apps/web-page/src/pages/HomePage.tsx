@@ -41,7 +41,7 @@ export default function HomePage({ onPageChange }: HomePageProps) {
   }, []);
 
   const welcomeMessage = messages[currentImageIndex % messages.length];
-  const carouselIndex = currentImageIndex % 3; // Assuming 3 images in HeroCarousel
+  const carouselIndex = currentImageIndex % 4; // 4 images in HeroCarousel
 
   const handleDragStart = (clientX: number) => {
     dragRef.current = { startX: clientX, currentX: clientX, isDragging: true };
