@@ -183,7 +183,7 @@ export default function HomePage({ onPageChange }: HomePageProps) {
   return (
     <div className="flex-1 overflow-y-auto pb-24">
       {/* Full-Width Hero Carousel Header - 21:9 Aspect Ratio */}
-      <HeroCarousel currentIndex={carouselIndex} />
+      <HeroCarousel currentIndex={carouselIndex} welcomeMessage={welcomeMessage} messageKey={currentImageIndex} />
       
       {/* Sticky Header with User Info - Below Carousel, Above Content */}
       <header className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5 px-6 py-4 transition-all duration-300">

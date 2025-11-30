@@ -7,33 +7,30 @@ interface AnimatedTextProps {
 }
 
 export default function AnimatedText({ text, className = '', animationKey }: AnimatedTextProps) {
-  const [displayedText, setDisplayedText] = useState('');
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [displayedChars, setDisplayedChars] = useState<string[]>([]);
 
   useEffect(() => {
     // Reset when text changes
-    setDisplayedText('');
-    setCurrentIndex(0);
+    setDisplayedChars([]);
+    
+    // Add characters one by one
+    const chars = text.split('');
+    chars.forEach((char, index) => {
+      setTimeout(() => {
+        setDisplayedChars(prev => [...prev, char]);
+      }, index * 50); // 50ms delay between each letter
+    });
   }, [animationKey, text]);
-
-  useEffect(() => {
-    if (currentIndex < text.length) {
-      const timeout = setTimeout(() => {
-        setDisplayedText(prev => prev + text[currentIndex]);
-        setCurrentIndex(prev => prev + 1);
-      }, 50); // 50ms delay between each letter
-
-      return () => clearTimeout(timeout);
-    }
-  }, [currentIndex, text]);
 
   return (
     <span className={className}>
-      {displayedText.split('').map((char, index) => (
+      {displayedChars.map((char, index) => (
         <span
           key={`${animationKey}-${index}`}
-          className="inline-block animate-in fade-in slide-in-from-bottom-1 duration-300"
+          className="inline-block"
           style={{
+            opacity: 1,
+            animation: 'fadeInUp 0.3s ease-out',
             animationDelay: `${index * 30}ms`,
             animationFillMode: 'backwards'
           }}
