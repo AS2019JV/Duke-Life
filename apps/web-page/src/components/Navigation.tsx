@@ -10,7 +10,7 @@ export default function Navigation({ activePage, onPageChange }: NavigationProps
     { id: 'home', icon: Home, label: 'Home' },
     { id: 'reservas', icon: Calendar, label: 'Reservas' },
     { id: 'concierge', icon: User, label: 'Concierge', special: true },
-    { id: 'cursos', icon: BookOpen, label: 'Cursos' },
+    { id: 'cursos', icon: BookOpen, label: 'Educación' },
     { id: 'perfil', icon: UserCircle, label: 'Perfil' },
   ];
 

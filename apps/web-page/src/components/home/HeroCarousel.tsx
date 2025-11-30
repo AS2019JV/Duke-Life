@@ -1,21 +1,19 @@
 import { useState, useEffect } from 'react';
 
 const IMAGES = [
-  'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80&w=2000', // Luxury Hotel
-  'https://images.unsplash.com/photo-1569335467454-38d912a2339e?auto=format&fit=crop&q=80&w=2000', // Fine Dining
-  'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&q=80&w=2000'  // Luxury Travel
+  'https://sfqoraqpngkrfrgzxjdo.supabase.co/storage/v1/object/public/Slides/Onboarding.webp', // Bienvenida
+  'https://sfqoraqpngkrfrgzxjdo.supabase.co/storage/v1/object/public/Slides/Experiences.webp', // Experiences
+  'https://sfqoraqpngkrfrgzxjdo.supabase.co/storage/v1/object/public/Slides/Education.webp',  // Education
+  'https://sfqoraqpngkrfrgzxjdo.supabase.co/storage/v1/object/public/Slides/Network.webp'//
 ];
 
-export default function HeroCarousel() {
-  const [currentIndex, setCurrentIndex] = useState(0);
+interface HeroCarouselProps {
+  currentIndex: number;
+  welcomeMessage: string;
+  messageKey: number;
+}
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % IMAGES.length);
-    }, 5000);
-
-    return () => clearInterval(timer);
-  }, []);
+export default function HeroCarousel({ currentIndex, welcomeMessage, messageKey }: HeroCarouselProps) {
 
   return (
     <div className="relative w-full overflow-hidden" style={{ aspectRatio: '21/9' }}>
@@ -36,6 +34,16 @@ export default function HeroCarousel() {
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
         </div>
       ))}
+      
+      {/* Dynamic Welcome Message Overlay - Left Side */}
+      <div className="absolute left-8 top-1/2 -translate-y-1/2 z-10 max-w-md">
+        <span 
+          key={messageKey}
+          className="text-2xl md:text-3xl font-light text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-400 to-gold-200 tracking-wider uppercase animate-in fade-in slide-in-from-left-4 duration-700 drop-shadow-[0_0_20px_rgba(250,204,21,0.3)]"
+        >
+          {welcomeMessage}
+        </span>
+      </div>
     </div>
   );
 }

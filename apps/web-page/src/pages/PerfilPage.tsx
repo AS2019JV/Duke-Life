@@ -43,11 +43,11 @@ export default function PerfilPage() {
 
   const getMembershipColor = () => {
     if (user?.membership_type === 'black_elite') return {
-      gradient: 'from-gray-900 via-gray-800 to-black',
-      text: 'text-gold-400',
-      border: 'border-gold-400/30',
-      glow: 'shadow-gold-400/20',
-      icon: 'text-gold-400'
+      gradient: 'from-black via-black to-black',
+      text: 'text-white',
+      border: 'border-white/10',
+      glow: 'shadow-[0_0_50px_-12px_rgba(250,204,21,0.25)]',
+      icon: 'text-white'
     };
     if (user?.membership_type === 'platinum') return {
       gradient: 'from-slate-700 via-slate-600 to-slate-800',
@@ -208,11 +208,13 @@ export default function PerfilPage() {
 
           {/* Membership Card */}
           <div className={`relative bg-gradient-to-br ${colors.gradient} rounded-3xl p-6 border ${colors.border} shadow-2xl ${colors.glow} overflow-hidden`}>
-            {/* Card Pattern */}
+            {/* Card Pattern & Glossy Effect */}
             <div className="absolute inset-0 opacity-10">
               <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full blur-2xl" />
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full blur-2xl" />
             </div>
+            {/* Glossy Shine Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none" />
 
             <div className="relative space-y-4">
               {/* Membership Type */}
@@ -228,7 +230,7 @@ export default function PerfilPage() {
 
               {/* Membership Name */}
               <div>
-                <h2 className={`text-2xl font-bold tracking-wider ${colors.text}`}>
+                <h2 className={`text-2xl font-bold tracking-wider ${user?.membership_type === 'black_elite' ? 'text-gold-400' : colors.text}`}>
                   {getMembershipDisplay()}
                 </h2>
                 <p className={`text-xs font-medium mt-1 ${colors.text} opacity-80`}>

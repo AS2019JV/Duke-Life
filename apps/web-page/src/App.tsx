@@ -47,7 +47,7 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen w-full">
       {activePage === 'home' && <HomePage onPageChange={setActivePage} />}
       {activePage === 'reservas' && <ReservasPage />}
       {activePage === 'concierge' && <ConciergePage />}

@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase, Destination, Experience, Category } from '../lib/supabase';
 import ExperienceDetailPage from './ExperienceDetailPage';
 import HeroCarousel from '../components/home/HeroCarousel';
+import { User } from 'lucide-react';
 
 interface HomePageProps {
   onPageChange: (page: string) => void;
@@ -20,7 +21,27 @@ export default function HomePage({ onPageChange }: HomePageProps) {
   const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
   const experiencesRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
+
+
   const dragRef = useRef({ startX: 0, currentX: 0, isDragging: false });
+  
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const messages = [
+    'Bienvenido',
+    'Experiencias de Lujo con precios exclusivos',
+    'Educación de Alto Impacto',
+    'Network Internacional'
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => prev + 1);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const welcomeMessage = messages[currentImageIndex % messages.length];
+  const carouselIndex = currentImageIndex % 3; // Assuming 3 images in HeroCarousel
 
   const handleDragStart = (clientX: number) => {
     dragRef.current = { startX: clientX, currentX: clientX, isDragging: true };
@@ -161,44 +182,51 @@ export default function HomePage({ onPageChange }: HomePageProps) {
 
   return (
     <div className="flex-1 overflow-y-auto pb-24">
-      <header className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5 px-6 py-5 transition-all duration-300">
-        <div className="flex justify-between items-center">
-          {/* Centered User Name with Icon and Online Status */}
-          <div className="flex-1 flex justify-center items-center">
-            <div className="flex items-center gap-3">
-              {/* User Icon with Green Online Indicator */}
-              <div className="relative">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-white/10 to-white/5 border border-white/20 flex items-center justify-center shadow-lg shadow-white/10">
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    width="20" 
-                    height="20" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                    className="text-white"
-                  >
-                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                  </svg>
+      {/* Full-Width Hero Carousel Header - 21:9 Aspect Ratio */}
+      <HeroCarousel currentIndex={carouselIndex} />
+      
+      {/* Sticky Header with User Info - Below Carousel, Above Content */}
+      <header className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5 px-6 py-3 transition-all duration-300">
+        <div className="flex flex-col gap-2">
+          {/* Top Bar: Dynamic Welcome Message */}
+          <div className="flex justify-center items-center h-6 overflow-hidden">
+             <span 
+                key={currentImageIndex}
+                className="text-[10px] font-medium text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-400 to-gold-200 tracking-widest uppercase animate-in fade-in slide-in-from-bottom-2 duration-700"
+              >
+                {welcomeMessage}
+              </span>
+          </div>
+
+          <div className="flex justify-between items-center">
+            {/* Left Side: Avatar & Name (Reduced Size) */}
+            <button 
+              onClick={() => onPageChange('perfil')}
+              className="flex items-center gap-3 group"
+            >
+              <div className="relative w-10 h-10 rounded-full p-[1px] bg-gradient-to-b from-gold-400 to-gold-900 shadow-lg shadow-gold-900/20">
+                <div className="w-full h-full rounded-full bg-black flex items-center justify-center overflow-hidden relative">
+                  {user?.avatar_url ? (
+                    <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                  ) : (
+                    <User className="text-gold-400 w-5 h-5" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-tr from-gold-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
                 {/* Green Online Indicator */}
-                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-black shadow-lg shadow-emerald-400/50 animate-pulse" />
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-black shadow-[0_0_10px_rgba(16,185,129,0.6)] animate-pulse" />
               </div>
               
-              {/* User Name */}
-              <h1 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/80 tracking-wide">
+              <h1 className="text-lg font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/80 tracking-wide group-hover:text-gold-200 transition-colors">
                 {user?.full_name?.split(' ')[0] || 'Miembro'}
               </h1>
-            </div>
-          </div>
-          
-          {/* Right Side: Membership Badge and Profile Avatar */}
-          <div className="flex items-center gap-4">
-            <div className="flex flex-col items-end">
+            </button>
+            
+            {/* Right Side: Membership Badge with 'Miembro' label */}
+            <div className="flex flex-col items-end gap-1">
+              <span className="text-[8px] font-medium text-gold-400/60 tracking-[0.3em] uppercase">
+                Miembro
+              </span>
               <div className="px-3 py-1 rounded-full bg-gradient-to-r from-black via-zinc-900 to-black border border-gold-400/30 shadow-[0_0_15px_rgba(250,204,21,0.1)] flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-gold-400 animate-pulse" />
                 <span className="text-[9px] font-bold text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-400 to-gold-200 tracking-[0.2em] uppercase">
@@ -206,29 +234,12 @@ export default function HomePage({ onPageChange }: HomePageProps) {
                 </span>
               </div>
             </div>
-            
-            <button
-              onClick={() => onPageChange('perfil')}
-              className="relative w-12 h-12 rounded-full p-[1px] bg-gradient-to-b from-gold-400 to-gold-900 shadow-lg shadow-gold-900/20 group"
-            >
-              <div className="w-full h-full rounded-full bg-black flex items-center justify-center overflow-hidden relative">
-                {user?.avatar_url ? (
-                  <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
-                ) : (
-                  <span className="text-gold-400 font-light text-sm">{user?.full_name?.[0] || 'D'}</span>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-tr from-gold-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
-            </button>
           </div>
         </div>
       </header>
 
       <main className="p-6 space-y-10">
         <div>
-          {/* Hero Carousel */}
-          <HeroCarousel />
-
           {/* Section Header with Luxury Typography */}
           <div className="mb-8">
             <div className="flex items-center gap-4 mb-2">
@@ -256,6 +267,7 @@ export default function HomePage({ onPageChange }: HomePageProps) {
               ))}
             </div>
           </div>
+          
           
           
           
