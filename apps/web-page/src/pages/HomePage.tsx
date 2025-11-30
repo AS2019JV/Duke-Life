@@ -183,56 +183,44 @@ export default function HomePage({ onPageChange }: HomePageProps) {
   return (
     <div className="flex-1 overflow-y-auto pb-24">
       {/* Full-Width Hero Carousel Header - 21:9 Aspect Ratio */}
-      <HeroCarousel currentIndex={carouselIndex} />
+      <HeroCarousel currentIndex={carouselIndex} welcomeMessage={welcomeMessage} messageKey={currentImageIndex} />
       
       {/* Sticky Header with User Info - Below Carousel, Above Content */}
-      <header className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5 px-6 py-3 transition-all duration-300">
-        <div className="flex flex-col gap-2">
-          {/* Top Bar: Dynamic Welcome Message */}
-          <div className="flex justify-center items-center h-6 overflow-hidden">
-             <span 
-                key={currentImageIndex}
-                className="text-[10px] font-medium text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-400 to-gold-200 tracking-widest uppercase animate-in fade-in slide-in-from-bottom-2 duration-700"
-              >
-                {welcomeMessage}
-              </span>
-          </div>
-
-          <div className="flex justify-between items-center">
-            {/* Left Side: Avatar & Name (Reduced Size) */}
-            <button 
-              onClick={() => onPageChange('perfil')}
-              className="flex items-center gap-3 group"
-            >
-              <div className="relative w-10 h-10 rounded-full p-[1px] bg-gradient-to-b from-gold-400 to-gold-900 shadow-lg shadow-gold-900/20">
-                <div className="w-full h-full rounded-full bg-black flex items-center justify-center overflow-hidden relative">
-                  {user?.avatar_url ? (
-                    <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
-                  ) : (
-                    <User className="text-gold-400 w-5 h-5" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-gold-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                {/* Green Online Indicator */}
-                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-black shadow-[0_0_10px_rgba(16,185,129,0.6)] animate-pulse" />
+      <header className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5 px-6 py-4 transition-all duration-300">
+        <div className="flex justify-between items-center">
+          {/* Left Side: Avatar & Name (Reduced Size) */}
+          <button 
+            onClick={() => onPageChange('perfil')}
+            className="flex items-center gap-3 group"
+          >
+            <div className="relative w-10 h-10 rounded-full p-[1px] bg-gradient-to-b from-gold-400 to-gold-900 shadow-lg shadow-gold-900/20">
+              <div className="w-full h-full rounded-full bg-black flex items-center justify-center overflow-hidden relative">
+                {user?.avatar_url ? (
+                  <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                ) : (
+                  <User className="text-gold-400 w-5 h-5" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-tr from-gold-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
-              
-              <h1 className="text-lg font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/80 tracking-wide group-hover:text-gold-200 transition-colors">
-                {user?.full_name?.split(' ')[0] || 'Miembro'}
-              </h1>
-            </button>
+              {/* Green Online Indicator */}
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-black shadow-[0_0_10px_rgba(16,185,129,0.6)] animate-pulse" />
+            </div>
             
-            {/* Right Side: Membership Badge with 'Miembro' label */}
-            <div className="flex flex-col items-end gap-1">
-              <span className="text-[8px] font-medium text-gold-400/60 tracking-[0.3em] uppercase">
-                Miembro
+            <h1 className="text-lg font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/80 tracking-wide group-hover:text-gold-200 transition-colors">
+              {user?.full_name?.split(' ')[0] || 'Miembro'}
+            </h1>
+          </button>
+          
+          {/* Right Side: Membership Badge with 'Miembro' label */}
+          <div className="flex flex-col items-end gap-1">
+            <span className="text-[8px] font-medium text-gold-400/60 tracking-[0.3em] uppercase">
+              Miembro
+            </span>
+            <div className="px-3 py-1 rounded-full bg-gradient-to-r from-black via-zinc-900 to-black border border-gold-400/30 shadow-[0_0_15px_rgba(250,204,21,0.1)] flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-gold-400 animate-pulse" />
+              <span className="text-[9px] font-bold text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-400 to-gold-200 tracking-[0.2em] uppercase">
+                {getMembershipDisplay()}
               </span>
-              <div className="px-3 py-1 rounded-full bg-gradient-to-r from-black via-zinc-900 to-black border border-gold-400/30 shadow-[0_0_15px_rgba(250,204,21,0.1)] flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-gold-400 animate-pulse" />
-                <span className="text-[9px] font-bold text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-400 to-gold-200 tracking-[0.2em] uppercase">
-                  {getMembershipDisplay()}
-                </span>
-              </div>
             </div>
           </div>
         </div>

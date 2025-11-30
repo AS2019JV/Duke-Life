@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+
 
 const IMAGES = [
   'https://sfqoraqpngkrfrgzxjdo.supabase.co/storage/v1/object/public/Slides/Onboarding.webp', // Bienvenida
@@ -35,11 +35,11 @@ export default function HeroCarousel({ currentIndex, welcomeMessage, messageKey 
         </div>
       ))}
       
-      {/* Dynamic Welcome Message Overlay - Left Side */}
-      <div className="absolute left-8 top-1/2 -translate-y-1/2 z-10 max-w-md">
+      {/* Dynamic Welcome Message Overlay - Bottom Left */}
+      <div className="absolute left-6 bottom-6 z-10 max-w-[80%] md:max-w-md">
         <span 
           key={messageKey}
-          className="text-2xl md:text-3xl font-light text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-400 to-gold-200 tracking-wider uppercase animate-in fade-in slide-in-from-left-4 duration-700 drop-shadow-[0_0_20px_rgba(250,204,21,0.3)]"
+          className="text-sm md:text-lg font-medium text-transparent bg-clip-text bg-gradient-to-r from-gold-100 via-gold-300 to-gold-100 tracking-[0.2em] uppercase animate-in fade-in slide-in-from-bottom-2 duration-700 drop-shadow-lg"
         >
           {welcomeMessage}
         </span>
