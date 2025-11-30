@@ -28,7 +28,7 @@ export default function HomePage({ onPageChange }: HomePageProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const messages = [
     'Bienvenido',
-    'Experiencias de Lujo con precios exclusivos',
+    'Lujo a precios exclusivos',
     'Educación de Alto Impacto',
     'Network Internacional'
   ];
