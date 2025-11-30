@@ -262,6 +262,10 @@ export default function HomePage({ onPageChange }: HomePageProps) {
           {/* Coverflow Style Carousel */}
           <div className="relative w-full flex flex-col items-center gap-8">
             <div className="relative w-full h-[400px] flex justify-center items-center overflow-hidden">
+              {/* Luxury Side Fades */}
+              <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-black via-black/80 to-transparent z-40 pointer-events-none" />
+              <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-black via-black/80 to-transparent z-40 pointer-events-none" />
+              
               <div 
                 className="relative w-full h-full flex justify-center items-center perspective-1000 cursor-grab active:cursor-grabbing"
                 onTouchStart={(e) => handleDragStart(e.touches[0].clientX)}
@@ -357,8 +361,8 @@ export default function HomePage({ onPageChange }: HomePageProps) {
                   key={index}
                   className={`transition-all duration-500 rounded-full ${
                     index === activeCategoryIndex
-                      ? 'w-6 h-1.5 bg-gradient-to-r from-gold-400 to-gold-600 shadow-lg shadow-gold-900/50'
-                      : 'w-1.5 h-1.5 bg-white/20'
+                      ? 'w-6 h-1 bg-white/40 backdrop-blur-sm shadow-sm'
+                      : 'w-1 h-1 bg-white/10'
                   }`}
                 />
               ))}

@@ -171,11 +171,15 @@ export default function ReservasPage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent opacity-90" />
                     
-                    {/* Tag */}
-                    <div className="absolute top-4 left-4 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
-                      <span className="text-[9px] text-white/90 font-medium tracking-widest uppercase">
-                        {reservation.experiences?.categories?.name || 'EXPERIENCIA'}
-                      </span>
+                    {/* Category Tag - Luxury Design */}
+                    <div className="absolute top-4 left-4 group/tag">
+                      <div className="relative px-4 py-2 rounded-full bg-gradient-to-br from-black/80 via-black/70 to-black/60 backdrop-blur-xl border border-gold-400/20 shadow-lg shadow-gold-900/20 transition-all duration-300 group-hover/tag:border-gold-400/40 group-hover/tag:shadow-gold-900/30">
+                        <span className="text-[9px] text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-400 to-gold-200 font-semibold tracking-[0.2em] uppercase">
+                          {reservation.experiences?.categories?.name || 'EXPERIENCIA'}
+                        </span>
+                        {/* Subtle inner glow */}
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gold-400/5 to-transparent pointer-events-none" />
+                      </div>
                     </div>
 
                     {/* Status Pill */}
