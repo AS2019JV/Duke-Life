@@ -7,32 +7,16 @@ interface AnimatedTextProps {
 }
 
 export default function AnimatedText({ text, className = '', animationKey }: AnimatedTextProps) {
-  const [displayedChars, setDisplayedChars] = useState<string[]>([]);
-
-  useEffect(() => {
-    // Reset when text changes
-    setDisplayedChars([]);
-    
-    // Add characters one by one
-    const chars = text.split('');
-    chars.forEach((char, index) => {
-      setTimeout(() => {
-        setDisplayedChars(prev => [...prev, char]);
-      }, index * 50); // 50ms delay between each letter
-    });
-  }, [animationKey, text]);
-
   return (
     <span className={className}>
-      {displayedChars.map((char, index) => (
+      {text.split('').map((char, index) => (
         <span
           key={`${animationKey}-${index}`}
           className="inline-block"
           style={{
-            opacity: 1,
-            animation: 'fadeInUp 0.3s ease-out',
-            animationDelay: `${index * 30}ms`,
-            animationFillMode: 'backwards'
+            opacity: 0,
+            animation: 'fadeInUp 0.4s ease-out forwards',
+            animationDelay: `${index * 20}ms`
           }}
         >
           {char === ' ' ? '\u00A0' : char}
