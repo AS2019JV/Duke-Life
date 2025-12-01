@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import AnimatedText from './AnimatedText';
 
 const IMAGES = [
@@ -11,10 +10,9 @@ const IMAGES = [
 interface HeroCarouselProps {
   currentIndex: number;
   welcomeMessage: string;
-  messageKey: number;
 }
 
-export default function HeroCarousel({ currentIndex, welcomeMessage, messageKey }: HeroCarouselProps) {
+export default function HeroCarousel({ currentIndex, welcomeMessage }: HeroCarouselProps) {
   return (
     <div className="relative w-full overflow-hidden" style={{ aspectRatio: '21/9' }}>
       {/* Images */}
@@ -35,11 +33,10 @@ export default function HeroCarousel({ currentIndex, welcomeMessage, messageKey 
         </div>
       ))}
 
-      {/* Dynamic Welcome Message Overlay - Bottom Left with Animated Letters */}
+      {/* Dynamic Welcome Message Overlay - Bottom Left */}
       <div className="absolute left-6 bottom-6 z-10 max-w-[85%] md:max-w-md">
         <AnimatedText
           text={welcomeMessage}
-          animationKey={messageKey}
           className="text-xs md:text-base font-medium text-transparent bg-clip-text bg-gradient-to-r from-gold-100 via-gold-300 to-gold-100 tracking-[0.2em] uppercase drop-shadow-lg leading-relaxed block"
         />
       </div>
