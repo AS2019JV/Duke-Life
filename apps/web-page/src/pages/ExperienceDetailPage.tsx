@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, MapPin, Clock, Users, Star } from 'lucide-react';
+import { ArrowLeft, MapPin, Clock, Users, Star, Camera } from 'lucide-react';
 import { Experience } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import ReservationModal from '../components/ReservationModal';
@@ -41,14 +41,23 @@ export default function ExperienceDetailPage({
 
   return (
     <div className="flex-1 overflow-y-auto pb-24">
-      {/* Hero Image */}
-      <div className="relative h-80 overflow-hidden">
+      {/* Hero Image Gallery */}
+      <div className="relative h-80 overflow-hidden group">
         <img
           src={experience.image_url}
           alt={experience.title}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+        
+        {/* Gallery Button */}
+        <button 
+          className="absolute bottom-24 right-6 bg-black/40 backdrop-blur-md border border-white/20 text-white px-4 py-2 rounded-full flex items-center gap-2 hover:bg-black/60 transition-all"
+          onClick={() => alert('Galería completa próximamente')}
+        >
+          <Camera className="w-4 h-4" />
+          <span className="text-xs font-medium tracking-wide">Ver Fotos</span>
+        </button>
         
         {/* Back Button */}
         <button

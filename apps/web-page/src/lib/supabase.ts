@@ -64,6 +64,7 @@ export interface Reservation {
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   price_paid: number;
   qr_code: string;
+  people_count?: number;
   created_at: string;
   experiences?: Experience;
 }

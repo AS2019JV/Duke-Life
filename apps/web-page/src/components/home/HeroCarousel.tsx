@@ -24,7 +24,7 @@ export default function HeroCarousel({ currentIndex }: HeroCarouselProps) {
         <div
           key={index}
           className={`absolute inset-0 transition-opacity duration-[1500ms] ease-in-out ${
-            index === currentIndex ? 'opacity-100' : 'opacity-0'
+            index === currentIndex ? 'opacity-100 delay-[1500ms]' : 'opacity-0'
           }`}
         >
           <img
@@ -42,7 +42,7 @@ export default function HeroCarousel({ currentIndex }: HeroCarouselProps) {
         <div
           key={index}
           className={`absolute left-6 bottom-6 z-10 max-w-[85%] md:max-w-md pointer-events-none transition-opacity duration-[1500ms] ease-in-out ${
-            index === currentIndex ? 'opacity-100' : 'opacity-0'
+            index === currentIndex ? 'opacity-100 delay-[1500ms]' : 'opacity-0'
           }`}
         >
           <span className="text-xs md:text-base font-medium text-transparent bg-clip-text bg-gradient-to-r from-gold-100 via-gold-300 to-gold-100 tracking-[0.2em] uppercase drop-shadow-lg leading-relaxed block">

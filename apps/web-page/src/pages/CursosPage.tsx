@@ -37,7 +37,7 @@ export default function CursosPage() {
 
   const getAccessText = (course: Course) => {
     if (user?.membership_type === 'black_elite' && course.black_elite_free) {
-      return 'Acceso Gratuito';
+      return 'Acceso Desbloqueado';
     }
     if (user?.membership_type === 'platinum') {
       return `${course.platinum_discount}% OFF`;
@@ -93,7 +93,7 @@ export default function CursosPage() {
                     onClick={() => setSelectedCourse(course)}
                     className="bg-gradient-to-r from-gold-400 to-gold-500 hover:from-gold-300 hover:to-gold-400 text-black font-bold py-3 px-6 rounded-full shadow-lg shadow-gold-900/30 transition-all duration-500 transform hover:scale-105 hover:shadow-xl hover:shadow-gold-900/40 text-xs tracking-widest uppercase"
                   >
-                    Comenzar
+                    Reservar
                   </button>
                 </div>
               </div>

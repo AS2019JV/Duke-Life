@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Clock, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { X, Clock, ChevronLeft, ChevronRight, CheckCircle2, Users, Sparkles } from 'lucide-react';
 import { supabase, Experience } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -9,6 +9,12 @@ interface ReservationModalProps {
   onReservationCreated: () => void;
 }
 
+const QUESTIONS = [
+  '¿Cómo te podemos consentir?',
+  '¿Qué esperas de la experiencia?',
+  '¿Cómo te gustaría ser consentido?'
+];
+
 export default function ReservationModal({
   experience,
   onClose,
@@ -17,10 +23,26 @@ export default function ReservationModal({
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('10:00');
+  const [peopleCount, setPeopleCount] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [step, setStep] = useState<'date' | 'time' | 'confirm'>('date');
+  
+  // Timezone handling: Default to Cancun time
+  const getCancunDate = () => {
+    const now = new Date();
+    // Create a date object from the Cancun string to ensure we have the correct "local" time components
+    // This is a bit of a hack since JS Date is always local or UTC, but for display purposes it works
+    // if we treat the resulting Date object as if it were local.
+    const cancunString = now.toLocaleString('en-US', { timeZone: 'America/Cancun' });
+    return new Date(cancunString);
+  };
+
+  const [currentMonth, setCurrentMonth] = useState(getCancunDate());
+  const [step, setStep] = useState<'date' | 'time' | 'confirm' | 'questionnaire'>('date');
+  
+  // Questionnaire state
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [answer, setAnswer] = useState('');
 
   // Handle escape key to close modal
   useEffect(() => {
@@ -31,17 +53,28 @@ export default function ReservationModal({
     return () => window.removeEventListener('keydown', handleEscape);
   }, [onClose]);
 
+  // Rotate questions
+  useEffect(() => {
+    if (step === 'questionnaire') {
+      const interval = setInterval(() => {
+        setCurrentQuestionIndex((prev) => (prev + 1) % QUESTIONS.length);
+      }, 4000);
+      return () => clearInterval(interval);
+    }
+  }, [step]);
+
   const getPrice = () => {
+    let price = 0;
     if (user?.membership_type === 'black_elite' && experience.black_elite_included) {
-      return 0;
+      price = 0;
+    } else if (user?.membership_type === 'black_elite') {
+      price = experience.black_elite_price;
+    } else if (user?.membership_type === 'platinum') {
+      price = experience.platinum_price;
+    } else {
+      price = experience.gold_price;
     }
-    if (user?.membership_type === 'black_elite') {
-      return experience.black_elite_price;
-    }
-    if (user?.membership_type === 'platinum') {
-      return experience.platinum_price;
-    }
-    return experience.gold_price;
+    return price * peopleCount;
   };
 
   const handleReserve = async () => {
@@ -61,9 +94,13 @@ export default function ReservationModal({
       reservation_date: reservationDate,
       status: 'confirmed',
       price_paid: getPrice(),
+      people_count: peopleCount, // Attempt to save people count
+      // We might want to save the answer somewhere, but schema doesn't have it.
+      // Maybe in a future 'notes' field. For now, we just collect it for the experience.
     });
 
     if (insertError) {
+      console.error('Error creating reservation:', insertError);
       setError('Error al crear la reserva. Intenta de nuevo.');
       setLoading(false);
       return;
@@ -75,7 +112,7 @@ export default function ReservationModal({
   };
 
   const getTomorrowDate = () => {
-    const tomorrow = new Date();
+    const tomorrow = getCancunDate();
     tomorrow.setDate(tomorrow.getDate() + 1);
     return tomorrow;
   };
@@ -152,7 +189,7 @@ export default function ReservationModal({
   const monthName = currentMonth.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
 
   const selectedDateFormatted = selectedDate
-    ? new Date(selectedDate).toLocaleDateString('es-ES', {
+    ? new Date(`${selectedDate}T12:00:00`).toLocaleDateString('es-ES', {
         weekday: 'long',
         day: 'numeric',
         month: 'long',
@@ -174,12 +211,14 @@ export default function ReservationModal({
               {step === 'date' && 'Elige una fecha'}
               {step === 'time' && 'Elige una hora'}
               {step === 'confirm' && 'Confirma tu reserva'}
+              {step === 'questionnaire' && 'Personaliza tu experiencia'}
             </h2>
             <p className="text-xs text-gray-500 mt-1 font-light">{experience.title}</p>
             <div className="flex gap-1.5 mt-3">
-              <div className={`h-1 rounded-full transition-all duration-300 ${step === 'date' ? 'bg-yellow-500 w-8' : 'bg-white/20 w-6'}`} />
-              <div className={`h-1 rounded-full transition-all duration-300 ${step === 'time' ? 'bg-yellow-500 w-8' : 'bg-white/20 w-6'}`} />
-              <div className={`h-1 rounded-full transition-all duration-300 ${step === 'confirm' ? 'bg-yellow-500 w-8' : 'bg-white/20 w-6'}`} />
+              <div className={`h-1 rounded-full transition-all duration-300 ${step === 'date' ? 'bg-gold-400 w-8' : 'bg-white/20 w-6'}`} />
+              <div className={`h-1 rounded-full transition-all duration-300 ${step === 'time' ? 'bg-gold-400 w-8' : 'bg-white/20 w-6'}`} />
+              <div className={`h-1 rounded-full transition-all duration-300 ${step === 'confirm' ? 'bg-gold-400 w-8' : 'bg-white/20 w-6'}`} />
+              <div className={`h-1 rounded-full transition-all duration-300 ${step === 'questionnaire' ? 'bg-gold-400 w-8' : 'bg-white/20 w-6'}`} />
             </div>
           </div>
           <button
@@ -199,14 +238,14 @@ export default function ReservationModal({
                   disabled={!canGoPrev}
                   className="p-2 hover:bg-[#1a1a1a] rounded-lg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
-                  <ChevronLeft size={20} className="text-yellow-600" />
+                  <ChevronLeft size={20} className="text-gold-400" />
                 </button>
                 <p className="text-white font-semibold text-lg capitalize flex-1 text-center tracking-wide">{monthName}</p>
                 <button
                   onClick={handleNextMonth}
                   className="p-2 hover:bg-[#1a1a1a] rounded-lg transition-colors"
                 >
-                  <ChevronRight size={20} className="text-yellow-600" />
+                  <ChevronRight size={20} className="text-gold-400" />
                 </button>
               </div>
 
@@ -226,10 +265,10 @@ export default function ReservationModal({
                     disabled={isDateDisabled(day)}
                     className={`aspect-square rounded-xl text-sm font-semibold transition-all tracking-wide active:scale-95 ${
                       isDateSelected(day)
-                        ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-black shadow-lg shadow-yellow-500/30'
+                        ? 'bg-gradient-to-br from-gold-400 to-gold-600 text-black shadow-lg shadow-gold-500/30'
                         : isDateDisabled(day)
                         ? 'text-gray-600 cursor-not-allowed'
-                        : 'bg-[#1a1a1a] text-white hover:bg-[#2a2a2a] border border-white/10 hover:border-yellow-600/50 hover:scale-105'
+                        : 'bg-[#1a1a1a] text-white hover:bg-[#2a2a2a] border border-white/10 hover:border-gold-400/50 hover:scale-105'
                     }`}
                   >
                     {day}
@@ -259,8 +298,8 @@ export default function ReservationModal({
                       }}
                       className={`py-3 px-2 rounded-xl text-sm font-semibold transition-all tracking-wide active:scale-95 ${
                         selectedTime === time
-                          ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-black shadow-lg shadow-yellow-500/30'
-                          : 'bg-[#1a1a1a] text-gray-300 border border-white/10 hover:border-yellow-600/50 hover:bg-[#2a2a2a] hover:scale-105'
+                          ? 'bg-gradient-to-br from-gold-400 to-gold-600 text-black shadow-lg shadow-gold-500/30'
+                          : 'bg-[#1a1a1a] text-gray-300 border border-white/10 hover:border-gold-400/50 hover:bg-[#2a2a2a] hover:scale-105'
                       }`}
                     >
                       {time}
@@ -293,15 +332,38 @@ export default function ReservationModal({
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-yellow-500/15 to-yellow-600/10 border border-yellow-600/40 rounded-2xl p-5">
+                {/* People Count Selector */}
+                <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-4">
+                  <p className="text-xs text-gray-500 uppercase tracking-widest font-medium mb-3 flex items-center gap-1">
+                    <Users size={12} />
+                    Personas
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <button 
+                      onClick={() => setPeopleCount(Math.max(1, peopleCount - 1))}
+                      className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+                    >
+                      -
+                    </button>
+                    <span className="text-xl font-bold text-white">{peopleCount}</span>
+                    <button 
+                      onClick={() => setPeopleCount(peopleCount + 1)}
+                      className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-gold-400/15 to-gold-600/10 border border-gold-400/40 rounded-2xl p-5">
                   <p className="text-xs text-gray-500 uppercase tracking-widest font-medium mb-3">Total</p>
                   {getPrice() === 0 ? (
                     <div>
-                      <p className="text-2xl font-bold text-yellow-500 tracking-tight">Gratis</p>
-                      <p className="text-xs text-yellow-600 mt-2 font-light">Incluido en tu membresía</p>
+                      <p className="text-2xl font-bold text-gold-400 tracking-tight">Costo Preferencial</p>
+                      <p className="text-xs text-gold-600 mt-2 font-light">Incluido en tu membresía</p>
                     </div>
                   ) : (
-                    <p className="text-3xl font-bold text-yellow-500 tracking-tight">${getPrice()}</p>
+                    <p className="text-3xl font-bold text-gold-400 tracking-tight">${getPrice()}</p>
                   )}
                 </div>
               </div>
@@ -313,12 +375,48 @@ export default function ReservationModal({
               )}
             </div>
           )}
+
+          {step === 'questionnaire' && (
+            <div className="p-6 space-y-8 animate-in fade-in duration-500 flex flex-col justify-center min-h-[300px]">
+              <div className="text-center space-y-2">
+                <Sparkles className="w-8 h-8 text-gold-400 mx-auto mb-4 animate-pulse" />
+                <p className="text-sm text-white/60 font-light leading-relaxed">
+                  Nuestro objetivo es que te la pases de lo mejor así que cuéntanos:
+                </p>
+              </div>
+
+              <div className="relative h-20 flex items-center justify-center">
+                {QUESTIONS.map((q, idx) => (
+                  <h3
+                    key={idx}
+                    className={`absolute text-xl md:text-2xl font-light text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-400 to-gold-200 text-center transition-all duration-1000 ease-in-out ${
+                      idx === currentQuestionIndex ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-4'
+                    }`}
+                  >
+                    {q}
+                  </h3>
+                ))}
+              </div>
+
+              <div className="relative">
+                <input
+                  type="text"
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                  placeholder="Escribe tu respuesta aquí..."
+                  className="w-full bg-white/5 border border-gold-400/30 rounded-xl px-4 py-4 text-white placeholder:text-white/20 focus:outline-none focus:border-gold-400/60 focus:ring-1 focus:ring-gold-400/60 transition-all text-center font-light"
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="sticky bottom-0 bg-gradient-to-t from-[#0a0a0a] to-[#0a0a0a]/80 border-t border-white/10 p-4 flex gap-3 rounded-b-3xl">
-          {step !== 'date' && (
+          {step !== 'date' && step !== 'questionnaire' && step !== 'confirm' && (
             <button
-              onClick={() => setStep(step === 'time' ? 'date' : 'time')}
+              onClick={() => {
+                if (step === 'time') setStep('date');
+              }}
               className="flex-1 bg-gray-700 text-white font-medium py-3 rounded-xl hover:bg-gray-600 transition-all tracking-wide hover:scale-105 active:scale-95"
             >
               Atrás
@@ -332,42 +430,37 @@ export default function ReservationModal({
               Cancelar
             </button>
           )}
+          
           {step === 'confirm' && (
-            <>
-              <button
-                onClick={() => setStep('time')}
-                className="flex-1 bg-gray-700 text-white font-medium py-3 rounded-xl hover:bg-gray-600 transition-all tracking-wide hover:scale-105 active:scale-95"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleReserve}
-                disabled={loading}
-                className="flex-1 bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-semibold py-3 rounded-xl hover:shadow-lg hover:shadow-yellow-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 tracking-wide hover:scale-105 active:scale-95"
-              >
-                {loading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                    Reservando...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 size={18} />
-                    Confirmar
-                  </>
-                )}
-              </button>
-            </>
-          )}
-          {(step === 'date' || step === 'time') && step !== 'date' && (
             <button
-              onClick={() => setStep(step === 'time' ? 'date' : 'confirm')}
-              disabled={step === 'time' && !selectedTime}
-              className="flex-1 bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-semibold py-3 rounded-xl hover:shadow-lg hover:shadow-yellow-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed tracking-wide hover:scale-105 active:scale-95"
+              onClick={() => setStep('questionnaire')}
+              className="flex-1 bg-gradient-to-r from-gold-400 to-gold-600 text-black font-semibold py-3 rounded-xl hover:shadow-lg hover:shadow-gold-500/40 transition-all flex items-center justify-center gap-2 tracking-wide hover:scale-105 active:scale-95"
             >
-              Siguiente
+              Confirmar
             </button>
           )}
+
+          {step === 'questionnaire' && (
+            <button
+              onClick={handleReserve}
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-gold-400 to-gold-600 text-black font-semibold py-4 rounded-xl hover:shadow-lg hover:shadow-gold-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 tracking-wide hover:scale-105 active:scale-95 uppercase text-sm"
+            >
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                  Reservando...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 size={18} />
+                  Reservar Ahora
+                </>
+              )}
+            </button>
+          )}
+
+
         </div>
       </div>
     </div>

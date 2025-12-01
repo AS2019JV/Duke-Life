@@ -6,7 +6,11 @@ import { Calendar, MapPin, Clock, CheckCircle2, AlertCircle, XCircle, User } fro
 
 let subscriptionUnsubscribe: (() => void) | null = null;
 
-export default function ReservasPage() {
+interface ReservasPageProps {
+  onPageChange?: (page: string) => void;
+}
+
+export default function ReservasPage({ onPageChange }: ReservasPageProps) {
   const { user } = useAuth();
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -241,6 +245,7 @@ export default function ReservasPage() {
         <ReservationDetailModal
           reservation={selectedReservation}
           onClose={() => setSelectedReservation(null)}
+          onNavigate={onPageChange}
         />
       )}
     </div>

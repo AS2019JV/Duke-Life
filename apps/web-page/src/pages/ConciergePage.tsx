@@ -105,7 +105,7 @@ export default function ConciergePage() {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5 px-6 py-5 transition-all duration-300">
         <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-gold-400 to-gold-300 text-center tracking-[0.15em] uppercase">
-          Concierge
+          Smart Concierge
         </h1>
       </header>
 

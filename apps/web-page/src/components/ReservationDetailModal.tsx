@@ -1,15 +1,17 @@
 import { useEffect } from 'react';
-import { X, MapPin, Calendar, Clock, QrCode, Phone, Mail } from 'lucide-react';
+import { X, MapPin, Calendar, Clock, QrCode, MessageSquare, Users } from 'lucide-react';
 import { Reservation } from '../lib/supabase';
 
 interface ReservationDetailModalProps {
   reservation: Reservation;
   onClose: () => void;
+  onNavigate?: (page: string) => void;
 }
 
 export default function ReservationDetailModal({
   reservation,
   onClose,
+  onNavigate,
 }: ReservationDetailModalProps) {
   // Handle escape key to close modal
   useEffect(() => {
@@ -40,189 +42,163 @@ export default function ReservationDetailModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[60] p-4"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg bg-gradient-to-b from-[#0a0a0a] to-[#1a1a1a] border border-gold-400/20 rounded-3xl animate-in zoom-in-95 fade-in duration-300 max-h-[90vh] flex flex-col shadow-2xl shadow-gold-900/20"
+        className="w-full max-w-md relative bg-[#0a0a0a] rounded-3xl animate-in slide-in-from-bottom-10 fade-in duration-500 shadow-2xl shadow-gold-900/30 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
+        style={{
+          clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 20px 100%, 0 calc(100% - 20px))'
+        }}
       >
+        {/* Ticket Top Decoration */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gold-400 via-gold-200 to-gold-400" />
+
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-b from-[#0a0a0a] to-transparent border-b border-gold-400/10 p-6 flex justify-between items-start rounded-t-3xl">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 rounded-full bg-gold-400 animate-pulse" />
-              <span className="text-[10px] text-gold-400/70 font-light tracking-widest uppercase">
-                Confirmado
-              </span>
+        <div className="relative bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] p-5 pb-6 border-b border-white/5">
+          <div className="flex justify-between items-start">
+            <div>
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.5)]" />
+                <span className="text-[9px] text-emerald-400 font-bold tracking-[0.2em] uppercase">
+                  Confirmado
+                </span>
+              </div>
+              <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-400 to-gold-200 tracking-wide">
+                TICKET DE ACCESO
+              </h2>
+              <p className="text-[10px] text-white/40 font-light tracking-widest uppercase mt-0.5">
+                #{reservation.id.slice(0, 8)}
+              </p>
             </div>
-            <h2 className="text-2xl font-extralight text-white tracking-wide leading-tight">
-              Detalles de Reserva
-            </h2>
+            {/* Close button moved to bottom right of this section, see below */}
           </div>
+          
           <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full"
-          >
-            <X size={20} />
-          </button>
+              onClick={onClose}
+              className="absolute bottom-3 right-4 text-white/20 hover:text-white transition-colors p-1.5 hover:bg-white/5 rounded-full"
+            >
+              <X size={18} />
+            </button>
+
+          {/* Decorative Circles */}
+          <div className="absolute -bottom-2 -left-2 w-4 h-4 rounded-full bg-[#0a0a0a] border border-white/5 z-10" />
+          <div className="absolute -bottom-2 -right-2 w-4 h-4 rounded-full bg-[#0a0a0a] border border-white/5 z-10" />
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="p-5 space-y-5 bg-[#0a0a0a]">
           {/* QR Code Section */}
-          {reservation.qr_code ? (
-            <div className="bg-gradient-to-br from-gold-400/5 to-gold-400/10 border border-gold-400/20 rounded-2xl p-6 space-y-4">
-              <div className="flex items-center gap-3 mb-4">
-                <QrCode className="w-5 h-5 text-gold-400" />
-                <h3 className="text-sm font-light text-gold-400 tracking-widest uppercase">
-                  Código de Acceso
-                </h3>
-              </div>
-              <div className="bg-white rounded-2xl p-6 flex items-center justify-center">
+          <div className="flex justify-center py-2">
+            <div className="bg-white p-3 rounded-xl shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+              {reservation.qr_code ? (
                 <img
                   src={reservation.qr_code}
                   alt="QR Code"
-                  className="w-48 h-48 object-contain"
+                  className="w-32 h-32 object-contain"
                 />
-              </div>
-              <p className="text-xs text-white/60 text-center font-light leading-relaxed">
-                Presenta este código QR al llegar a tu experiencia
-              </p>
+              ) : (
+                <div className="w-32 h-32 flex items-center justify-center bg-gray-100 rounded-lg">
+                  <QrCode className="w-10 h-10 text-gray-300" />
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="bg-gradient-to-br from-gold-400/5 to-gold-400/10 border border-gold-400/20 rounded-2xl p-8 text-center">
-              <QrCode className="w-12 h-12 text-gold-400/40 mx-auto mb-3" />
-              <p className="text-sm text-white/60 font-light">
-                Tu código QR se generará pronto
-              </p>
-            </div>
-          )}
+          </div>
 
-          {/* Experience Details */}
+          {/* Experience Info */}
           <div className="space-y-4">
-            <h3 className="text-xs font-medium text-gold-400/70 tracking-widest uppercase">
-              Experiencia
-            </h3>
-            <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+            <div className="flex items-start gap-4">
               <img
                 src={reservation.experiences?.image_url}
                 alt={reservation.experiences?.title}
-                className="w-full h-40 object-cover"
+                className="w-20 h-20 rounded-xl object-cover border border-white/10"
               />
-              <div className="p-5 space-y-3">
-                <h4 className="text-lg font-light text-white tracking-wide">
+              <div className="space-y-1">
+                <h3 className="text-lg font-bold text-white tracking-wide leading-tight">
                   {reservation.experiences?.title}
-                </h4>
-                <div className="flex items-center gap-2 text-xs text-white/60">
-                  <MapPin className="w-3 h-3" />
-                  <span className="font-light tracking-wide">
-                    {reservation.experiences?.destinations?.name}
-                  </span>
+                </h3>
+                <div className="flex items-center gap-1.5 text-xs text-gold-400/80 font-medium tracking-wide">
+                  <MapPin size={12} />
+                  {reservation.experiences?.destinations?.name}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Date & Time */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-gold-400" />
-                <span className="text-xs text-white/40 font-light tracking-wider uppercase">
-                  Fecha
-                </span>
+          {/* Details Grid */}
+          <div className="grid grid-cols-2 gap-4 bg-white/5 rounded-2xl p-4 border border-white/5">
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-xs text-white/40 uppercase tracking-wider">
+                <Calendar size={12} />
+                Fecha
               </div>
-              <p className="text-sm text-white font-light capitalize leading-relaxed">
+              <p className="text-sm text-white font-medium capitalize">
                 {formatDate(reservation.reservation_date)}
               </p>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
-              <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-gold-400" />
-                <span className="text-xs text-white/40 font-light tracking-wider uppercase">
-                  Hora
-                </span>
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-xs text-white/40 uppercase tracking-wider">
+                <Clock size={12} />
+                Hora
               </div>
-              <p className="text-sm text-white font-light">
+              <p className="text-sm text-white font-medium">
                 {formatTime(reservation.reservation_date)}
+              </p>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-xs text-white/40 uppercase tracking-wider">
+                <Users size={12} />
+                Personas
+              </div>
+              <p className="text-sm text-white font-medium">
+                {reservation.people_count || 1}
+              </p>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-xs text-white/40 uppercase tracking-wider">
+                <span className="text-gold-400">$</span>
+                Total
+              </div>
+              <p className="text-sm text-gold-400 font-bold">
+                {reservation.price_paid === 0 ? 'Incluido' : `$${reservation.price_paid}`}
               </p>
             </div>
           </div>
 
-          {/* Price */}
-          <div className="bg-gradient-to-br from-gold-400/10 to-gold-400/5 border border-gold-400/30 rounded-2xl p-5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-gold-400/70 font-light tracking-widest uppercase">
-                Total Pagado
-              </span>
-              <span className="text-2xl font-light text-gold-400">
-                {reservation.price_paid === 0 ? (
-                  <span className="text-base">Incluido</span>
-                ) : (
-                  `$${reservation.price_paid}`
-                )}
-              </span>
+          {/* Concierge Action */}
+          <div className="pt-4 border-t border-dashed border-white/10">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-xs text-white/40 uppercase tracking-widest">¿Necesitas ayuda?</span>
             </div>
+            <button
+              onClick={() => {
+                onClose();
+                onNavigate?.('concierge');
+              }}
+              className="w-full bg-white/5 hover:bg-white/10 border border-gold-400/20 rounded-xl p-4 flex items-center justify-between group transition-all duration-300"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gold-400/10 flex items-center justify-center text-gold-400">
+                  <MessageSquare size={18} />
+                </div>
+                <div className="text-left">
+                  <p className="text-xs text-white/60 font-light">Habla con</p>
+                  <p className="text-sm font-bold text-gold-400 tracking-wide">Smart Concierge</p>
+                </div>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/40 group-hover:text-white group-hover:translate-x-1 transition-all">
+                →
+              </div>
+            </button>
           </div>
 
-          {/* Contact Information */}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
-            <h3 className="text-xs font-medium text-gold-400/70 tracking-widest uppercase">
-              ¿Necesitas Ayuda?
-            </h3>
-            <div className="space-y-3">
-              <a
-                href="tel:+1234567890"
-                className="flex items-center gap-3 text-sm text-white/70 hover:text-gold-400 transition-colors group"
-              >
-                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-gold-400/10 transition-colors">
-                  <Phone className="w-4 h-4" />
-                </div>
-                <span className="font-light">+1 (234) 567-890</span>
-              </a>
-              <a
-                href="mailto:concierge@dukelife.com"
-                className="flex items-center gap-3 text-sm text-white/70 hover:text-gold-400 transition-colors group"
-              >
-                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-gold-400/10 transition-colors">
-                  <Mail className="w-4 h-4" />
-                </div>
-                <span className="font-light">concierge@dukelife.com</span>
-              </a>
-            </div>
-          </div>
-
-          {/* Additional Info */}
-          <div className="pt-4 border-t border-white/5 space-y-3">
-            <p className="text-xs text-white/40 font-light tracking-wider uppercase">
-              Información Importante
+          {/* Footer Info */}
+          <div className="text-center space-y-2">
+            <p className="text-[10px] text-white/30 uppercase tracking-widest">
+              Cancelación gratuita hasta 48 horas antes
             </p>
-            <ul className="space-y-2 text-sm text-white/60 font-light">
-              <li className="flex items-start gap-2">
-                <span className="text-gold-400 mt-1">•</span>
-                <span>Llega 15 minutos antes de tu hora reservada</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-gold-400 mt-1">•</span>
-                <span>Presenta tu QR code y una identificación válida</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-gold-400 mt-1">•</span>
-                <span>Cancelación gratuita hasta 24 horas antes</span>
-              </li>
-            </ul>
           </div>
-        </div>
-
-        {/* Footer */}
-        <div className="sticky bottom-0 bg-gradient-to-t from-[#0a0a0a] to-transparent border-t border-gold-400/10 p-6 rounded-b-3xl">
-          <button
-            onClick={onClose}
-            className="w-full bg-gradient-to-r from-gold-400 to-gold-500 hover:from-gold-300 hover:to-gold-400 text-black font-semibold py-4 rounded-full shadow-lg shadow-gold-900/30 transition-all duration-500 transform hover:scale-105 active:scale-95 text-sm tracking-widest uppercase"
-          >
-            Cerrar
-          </button>
         </div>
       </div>
     </div>
