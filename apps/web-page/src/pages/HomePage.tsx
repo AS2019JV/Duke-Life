@@ -20,18 +20,11 @@ export default function HomePage({ onPageChange }: HomePageProps) {
   const [showDetailPage, setShowDetailPage] = useState(false);
   const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
   const experiencesRef = useRef<HTMLDivElement>(null);
-  const carouselRef = useRef<HTMLDivElement>(null);
 
 
   const dragRef = useRef({ startX: 0, currentX: 0, isDragging: false });
   
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const messages = [
-    'Bienvenido',
-    'Lujo a precios exclusivos',
-    'Educación de Alto Impacto',
-    'Network Internacional'
-  ];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -39,8 +32,6 @@ export default function HomePage({ onPageChange }: HomePageProps) {
     }, 5000);
     return () => clearInterval(interval);
   }, []);
-
-  const welcomeMessage = messages[currentImageIndex % messages.length];
   const carouselIndex = currentImageIndex % 4; // 4 images in HeroCarousel
 
   const handleDragStart = (clientX: number) => {
@@ -183,10 +174,10 @@ export default function HomePage({ onPageChange }: HomePageProps) {
   return (
     <div className="flex-1 overflow-y-auto pb-24">
       {/* Full-Width Hero Carousel Header - 21:9 Aspect Ratio */}
-      <HeroCarousel currentIndex={carouselIndex} welcomeMessage={welcomeMessage} messageKey={currentImageIndex} />
+      <HeroCarousel currentIndex={carouselIndex} />
       
       {/* Sticky Header with User Info - Below Carousel, Above Content */}
-      <header className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5 px-6 py-4 transition-all duration-300">
+      <header className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl px-6 py-4 transition-all duration-300">
         <div className="flex justify-between items-center">
           {/* Left Side: Avatar & Name (Reduced Size) */}
           <button 

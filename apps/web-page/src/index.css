@@ -78,8 +78,16 @@
   }
   
   .animate-fadeIn {
-  animation: fadeIn 1s ease-in-out both;
-}
+    animation: fadeIn 1.5s ease-in-out both;
+  }
+
+  .animate-text-fade-in {
+    animation: textFadeIn 600ms ease-out 300ms forwards;
+  }
+
+  .animate-text-fade-out {
+    animation: textFadeOut 600ms ease-in forwards;
+  }
 }
 
 @keyframes shake {
@@ -102,6 +110,28 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes textFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes textFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
   }
 }
 

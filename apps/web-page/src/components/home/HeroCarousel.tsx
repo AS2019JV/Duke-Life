@@ -1,5 +1,3 @@
-import AnimatedText from './AnimatedText';
-
 const IMAGES = [
   'https://sfqoraqpngkrfrgzxjdo.supabase.co/storage/v1/object/public/Slides/Onboarding.webp', // Bienvenida
   'https://sfqoraqpngkrfrgzxjdo.supabase.co/storage/v1/object/public/Slides/Experiences.webp', // Experiences
@@ -7,19 +5,25 @@ const IMAGES = [
   'https://sfqoraqpngkrfrgzxjdo.supabase.co/storage/v1/object/public/Slides/Network.webp' // Network
 ];
 
+const MESSAGES = [
+  'Bienvenido',
+  'Lujo a precios exclusivos',
+  'Educación de Alto Impacto',
+  'Network Internacional'
+];
+
 interface HeroCarouselProps {
   currentIndex: number;
-  welcomeMessage: string;
 }
 
-export default function HeroCarousel({ currentIndex, welcomeMessage }: HeroCarouselProps) {
+export default function HeroCarousel({ currentIndex }: HeroCarouselProps) {
   return (
     <div className="relative w-full overflow-hidden" style={{ aspectRatio: '21/9' }}>
       {/* Images */}
       {IMAGES.map((img, index) => (
         <div
           key={index}
-          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+          className={`absolute inset-0 transition-opacity duration-[1500ms] ease-in-out ${
             index === currentIndex ? 'opacity-100' : 'opacity-0'
           }`}
         >
@@ -33,13 +37,19 @@ export default function HeroCarousel({ currentIndex, welcomeMessage }: HeroCarou
         </div>
       ))}
 
-      {/* Dynamic Welcome Message Overlay - Bottom Left */}
-      <div className="absolute left-6 bottom-6 z-10 max-w-[85%] md:max-w-md">
-        <AnimatedText
-          text={welcomeMessage}
-          className="text-xs md:text-base font-medium text-transparent bg-clip-text bg-gradient-to-r from-gold-100 via-gold-300 to-gold-100 tracking-[0.2em] uppercase drop-shadow-lg leading-relaxed block"
-        />
-      </div>
+      {/* Dynamic Welcome Messages - Bottom Left */}
+      {MESSAGES.map((message, index) => (
+        <div
+          key={index}
+          className={`absolute left-6 bottom-6 z-10 max-w-[85%] md:max-w-md pointer-events-none transition-opacity duration-[1500ms] ease-in-out ${
+            index === currentIndex ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          <span className="text-xs md:text-base font-medium text-transparent bg-clip-text bg-gradient-to-r from-gold-100 via-gold-300 to-gold-100 tracking-[0.2em] uppercase drop-shadow-lg leading-relaxed block">
+            {message}
+          </span>
+        </div>
+      ))}
     </div>
   );
 }
