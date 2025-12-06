@@ -214,7 +214,7 @@ export default function Auth() {
             ¿Nuevo en Duke Life?
           </p>
           <button className="mt-3 text-gold-400 font-medium text-sm tracking-wider hover:text-gold-300 transition-colors border-b border-transparent hover:border-gold-400/50 pb-1">
-            Solicitar membresía
+            Quiero ser socio
           </button>
         </div>
       </div>

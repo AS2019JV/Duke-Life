@@ -46,7 +46,7 @@ export default function ReservationDetailModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md relative bg-[#0a0a0a] rounded-3xl animate-in slide-in-from-bottom-10 fade-in duration-500 shadow-2xl shadow-gold-900/30 overflow-hidden"
+        className="w-full max-w-md relative bg-[#0a0a0a] rounded-3xl animate-slideUp shadow-2xl shadow-gold-900/30 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
         style={{
           clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 20px 100%, 0 calc(100% - 20px))'

@@ -198,14 +198,14 @@ export default function HomePage({ onPageChange }: HomePageProps) {
             </div>
             
             <h1 className="text-lg font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/80 tracking-wide group-hover:text-gold-200 transition-colors">
-              {user?.full_name?.split(' ')[0] || 'Miembro'}
+              {user?.full_name?.split(' ')[0] || 'Socio'}
             </h1>
           </button>
           
-          {/* Right Side: Membership Badge with 'Miembro' label */}
+          {/* Right Side: Membership Badge with 'Socio' label */}
           <div className="flex flex-col items-end gap-1">
             <span className="text-[8px] font-medium text-gold-400/60 tracking-[0.3em] uppercase">
-              Miembro
+              Socio
             </span>
             <div className="px-3 py-1 rounded-full bg-gradient-to-r from-black via-zinc-900 to-black border border-gold-400/30 shadow-[0_0_15px_rgba(250,204,21,0.1)] flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-gold-400 animate-pulse" />
@@ -269,10 +269,10 @@ export default function HomePage({ onPageChange }: HomePageProps) {
               >
                 {categories.map((category, index) => {
                   const categoryImages: Record<string, string> = {
-                    'Bienestar': 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&q=80&w=800',
-                    'Lujo': 'https://images.unsplash.com/photo-1565623833408-d77e39b88af6?auto=format&fit=crop&q=80&w=800',
+                    'Bienestar': 'https://sfqoraqpngkrfrgzxjdo.supabase.co/storage/v1/object/public/Categories/Wellness.webp',
+                    'Lujo': 'https://sfqoraqpngkrfrgzxjdo.supabase.co/storage/v1/object/public/Categories/Luxury.webp',
                     'Gastronomía': 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=800',
-                    'Aventura': 'https://images.unsplash.com/photo-1533692328991-08159ff19fca?auto=format&fit=crop&q=80&w=800'
+                    'Aventura': 'https://sfqoraqpngkrfrgzxjdo.supabase.co/storage/v1/object/public/Categories/Adventure.webp'
                   };
 
                   const categorySubtitles: Record<string, string> = {

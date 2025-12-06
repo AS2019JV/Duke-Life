@@ -202,7 +202,7 @@ export default function ReservationModal({
       onClick={onClose}
     >
       <div 
-        className="w-full max-w-md bg-gradient-to-b from-[#0a0a0a] to-[#0a0a0a] border border-white/10 rounded-3xl animate-in zoom-in-95 fade-in duration-300 max-h-[85vh] flex flex-col shadow-2xl"
+        className="w-full max-w-md bg-gradient-to-b from-[#0a0a0a] to-[#0a0a0a] border border-white/10 rounded-3xl animate-zoomIn max-h-[85vh] flex flex-col shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="sticky top-0 bg-[#0a0a0a] border-b border-white/10 p-4 flex justify-between items-center rounded-t-3xl">

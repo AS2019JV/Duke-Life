@@ -53,7 +53,7 @@ export default function CursosPage() {
 
       <main className="p-6 space-y-8">
         <p className="text-white/60 text-center font-medium leading-relaxed tracking-wide">
-          Como miembro{' '}
+          Como {' '}
           <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-400 to-gold-200">
             {getMembershipText()}
           </span>

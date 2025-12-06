@@ -3,12 +3,16 @@ import { useAuth } from '../contexts/AuthContext';
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import SettingsModal from '../components/SettingsModal';
+import BenefitsModal from '../components/BenefitsModal';
+import MembershipDetailsModal from '../components/MembershipDetailsModal';
 
 export default function PerfilPage() {
   const { user, signOut, refreshProfile } = useAuth();
   const [reservationCount, setReservationCount] = useState(0);
   const [upcomingCount, setUpcomingCount] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
+  const [showBenefits, setShowBenefits] = useState(false);
+  const [showMembership, setShowMembership] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -159,7 +163,7 @@ export default function PerfilPage() {
             {/* Avatar */}
             {/* Avatar */}
             <div 
-              className={`relative w-28 h-28 rounded-full bg-gradient-to-br ${colors.gradient} flex items-center justify-center border-2 ${colors.border} shadow-2xl ${colors.glow} animate-in zoom-in-95 duration-500 group cursor-pointer overflow-hidden`}
+              className={`relative w-28 h-28 rounded-full bg-gradient-to-br ${colors.gradient} flex items-center justify-center border-2 ${colors.border} shadow-2xl ${colors.glow} animate-zoomIn group cursor-pointer overflow-hidden`}
               onClick={handleAvatarClick}
             >
               {user?.avatar_url ? (
@@ -192,7 +196,7 @@ export default function PerfilPage() {
             {/* Name & Email */}
             <div className="text-center space-y-2">
               <h1 className="text-3xl font-semibold text-white tracking-wide">
-                {user?.full_name || 'Miembro Duke'}
+                {user?.full_name || 'Socio Duke'}
               </h1>
               <p className="text-sm text-white/50 font-medium tracking-wide">
                 {user?.email}
@@ -276,7 +280,7 @@ export default function PerfilPage() {
 
         {/* Menu Items */}
         <button
-          onClick={() => alert('Detalles de beneficios próximamente')}
+          onClick={() => setShowBenefits(true)}
           className="w-full bg-white/5 backdrop-blur-sm border border-white/10 text-white text-left p-5 rounded-2xl flex justify-between items-center hover:bg-white/10 hover:border-gold-400/30 transition-all duration-300 group hover:scale-[1.02] active:scale-[0.98]"
         >
           <div className="flex items-center gap-4">
@@ -294,7 +298,7 @@ export default function PerfilPage() {
         </button>
 
         <button
-          onClick={() => alert('Detalles de membresía próximamente')}
+          onClick={() => setShowMembership(true)}
           className="w-full bg-white/5 backdrop-blur-sm border border-white/10 text-white text-left p-5 rounded-2xl flex justify-between items-center hover:bg-white/10 hover:border-gold-400/30 transition-all duration-300 group hover:scale-[1.02] active:scale-[0.98]"
         >
           <div className="flex items-center gap-4">
@@ -354,6 +358,12 @@ export default function PerfilPage() {
 
       {showSettings && (
         <SettingsModal onClose={() => setShowSettings(false)} />
+      )}
+      {showBenefits && (
+        <BenefitsModal onClose={() => setShowBenefits(false)} />
+      )}
+      {showMembership && (
+        <MembershipDetailsModal onClose={() => setShowMembership(false)} />
       )}
     </div>
   );
