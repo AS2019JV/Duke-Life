@@ -399,12 +399,43 @@ export default function HomePage({ onPageChange }: HomePageProps) {
                 {/* Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90" />
 
+                {/* Discount Badge */}
+                {(() => {
+                   let membershipPrice = exp.gold_price;
+                   if (user?.membership_type === 'platinum') membershipPrice = exp.platinum_price;
+                   if (user?.membership_type === 'black_elite') membershipPrice = exp.black_elite_price;
+                   
+                   // Handle Black Elite included case
+                   if (user?.membership_type === 'black_elite' && exp.black_elite_included) {
+                     return (
+                        <div className="absolute top-6 right-6 bg-black/70 backdrop-blur-xl border-2 border-gold-400/60 px-5 py-2 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.6),0_0_24px_rgba(212,175,55,0.4)] group-hover:shadow-[0_12px_48px_rgba(0,0,0,0.8),0_0_32px_rgba(212,175,55,0.6)] group-hover:scale-105 transition-all duration-500">
+                           <span className="text-[11px] font-extrabold text-gold-300 tracking-[0.2em] uppercase drop-shadow-[0_2px_8px_rgba(212,175,55,0.8)]">
+                             ✦ Incluido
+                           </span>
+                        </div>
+                     );
+                   }
+
+                   const discount = Math.round(((exp.base_price - membershipPrice) / exp.base_price) * 100);
+                   
+                   if (discount > 0) {
+                     return (
+                       <div className="absolute top-6 right-6 bg-black/70 backdrop-blur-xl border-2 border-sage-400/70 px-5 py-2 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.6),0_0_24px_rgba(110,231,183,0.5)] group-hover:shadow-[0_12px_48px_rgba(0,0,0,0.8),0_0_32px_rgba(110,231,183,0.7)] group-hover:scale-105 transition-all duration-500">
+                         <span className="text-[11px] font-extrabold text-sage-300 tracking-[0.2em] uppercase drop-shadow-[0_2px_8px_rgba(110,231,183,0.9)]">
+                           {discount}% OFF
+                         </span>
+                       </div>
+                     );
+                   }
+                   return null;
+                })()}
+
                 {/* Content */}
                 <div className="absolute bottom-0 left-0 right-0 p-8 flex flex-col items-start gap-6">
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-[10px] text-gold-400 font-medium tracking-[0.2em] uppercase">
-                      <span className="w-1 h-1 rounded-full bg-gold-400" />
-                      {exp.destinations?.name}
+                    <div className="inline-flex items-center gap-2 bg-gradient-to-r from-gold-400/15 to-gold-500/10 backdrop-blur-sm border border-gold-400/40 px-3 py-1 rounded-full shadow-[0_2px_12px_rgba(212,175,55,0.25)]">
+                      <span className="w-1 h-1 rounded-full bg-gold-400 shadow-[0_0_6px_rgba(212,175,55,0.8)]" />
+                      <span className="text-[10px] text-gold-300 font-semibold tracking-[0.2em] uppercase">{exp.destinations?.name}</span>
                     </div>
                     <h3 className="text-3xl font-bold text-white tracking-tight leading-tight max-w-[80%]">
                       {exp.title}

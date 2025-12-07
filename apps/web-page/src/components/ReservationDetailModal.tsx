@@ -157,10 +157,10 @@ export default function ReservationDetailModal({
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-1.5 text-xs text-white/40 uppercase tracking-wider">
-                <span className="text-gold-400">$</span>
+                <span className="text-sage-400">$</span>
                 Total
               </div>
-              <p className="text-sm text-gold-400 font-bold">
+              <p className="text-sm text-sage-400 font-bold">
                 {reservation.price_paid === 0 ? 'Incluido' : `$${reservation.price_paid}`}
               </p>
             </div>

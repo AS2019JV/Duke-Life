@@ -1,4 +1,4 @@
-import { UserCircle, Award, CreditCard, Settings, LogOut, Crown, Star, Calendar, TrendingUp, ChevronRight, Sparkles, Loader2, Camera } from 'lucide-react';
+import { UserCircle, Award, CreditCard, Settings, LogOut, Crown, Star, Calendar, TrendingUp, ChevronRight, Sparkles, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
@@ -171,11 +171,6 @@ export default function PerfilPage() {
               ) : (
                 <UserCircle className={`w-20 h-20 ${colors.icon}`} />
               )}
-              
-              {/* Camera Icon Overlay */}
-              <div className="absolute bottom-0 right-0 bg-black/60 backdrop-blur-sm p-1.5 rounded-full border border-white/20 shadow-lg">
-                <Camera className="w-4 h-4 text-white/80" />
-              </div>
 
               {/* Loading Overlay */}
               {uploading && (

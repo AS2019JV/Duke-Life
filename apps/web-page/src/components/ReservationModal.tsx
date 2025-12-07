@@ -23,7 +23,14 @@ export default function ReservationModal({
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('10:00');
-  const [peopleCount, setPeopleCount] = useState(1);
+
+  const [adults, setAdults] = useState(1);
+  const [children, setChildren] = useState(0);
+  const [infants, setInfants] = useState(0);
+  // Computed total for display/database
+  const peopleCount = adults + children + infants;
+  // Computed paying count (assuming infants are free)
+  const payingCount = adults + children;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
@@ -74,7 +81,8 @@ export default function ReservationModal({
     } else {
       price = experience.gold_price;
     }
-    return price * peopleCount;
+
+    return price * payingCount;
   };
 
   const handleReserve = async () => {
@@ -332,38 +340,97 @@ export default function ReservationModal({
                   </div>
                 </div>
 
-                {/* People Count Selector */}
-                <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-4">
-                  <p className="text-xs text-gray-500 uppercase tracking-widest font-medium mb-3 flex items-center gap-1">
+                {/* Guest Selectors */}
+                <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-4 space-y-4">
+                  <p className="text-xs text-gray-500 uppercase tracking-widest font-medium flex items-center gap-1">
                     <Users size={12} />
-                    Personas
+                    Huéspedes
                   </p>
+                  
+                  {/* Adults */}
                   <div className="flex items-center justify-between">
-                    <button 
-                      onClick={() => setPeopleCount(Math.max(1, peopleCount - 1))}
-                      className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
-                    >
-                      -
-                    </button>
-                    <span className="text-xl font-bold text-white">{peopleCount}</span>
-                    <button 
-                      onClick={() => setPeopleCount(peopleCount + 1)}
-                      className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
-                    >
-                      +
-                    </button>
+                    <div>
+                      <p className="text-sm text-white font-medium">Adultos</p>
+                      <p className="text-[10px] text-gray-500 font-light">13+ años</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button 
+                        onClick={() => setAdults(Math.max(1, adults - 1))}
+                        className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 hover:border-gold-400/30 transition-all active:scale-95"
+                      >
+                        -
+                      </button>
+                      <span className="text-base font-bold text-white w-4 text-center">{adults}</span>
+                      <button 
+                        onClick={() => setAdults(adults + 1)}
+                        className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 hover:border-gold-400/30 transition-all active:scale-95"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Children */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-white font-medium">Niños</p>
+                      <p className="text-[10px] text-gray-500 font-light">2-12 años</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button 
+                        onClick={() => setChildren(Math.max(0, children - 1))}
+                        className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all active:scale-95 ${children === 0 ? 'bg-white/5 border-white/5 text-gray-600 cursor-not-allowed' : 'bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-gold-400/30'}`}
+                        disabled={children === 0}
+                      >
+                        -
+                      </button>
+                      <span className="text-base font-bold text-white w-4 text-center">{children}</span>
+                      <button 
+                        onClick={() => setChildren(children + 1)}
+                        className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 hover:border-gold-400/30 transition-all active:scale-95"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Infants */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-white font-medium">Bebés</p>
+                      <p className="text-[10px] text-gray-500 font-light">Menos de 2 años</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button 
+                        onClick={() => setInfants(Math.max(0, infants - 1))}
+                        className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all active:scale-95 ${infants === 0 ? 'bg-white/5 border-white/5 text-gray-600 cursor-not-allowed' : 'bg-white/5 border-white/10 text-white hover:bg-white/10 hover:border-gold-400/30'}`}
+                        disabled={infants === 0}
+                      >
+                        -
+                      </button>
+                      <span className="text-base font-bold text-white w-4 text-center">{infants}</span>
+                      <button 
+                        onClick={() => setInfants(infants + 1)}
+                        className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 hover:border-gold-400/30 transition-all active:scale-95"
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-gold-400/15 to-gold-600/10 border border-gold-400/40 rounded-2xl p-5">
-                  <p className="text-xs text-gray-500 uppercase tracking-widest font-medium mb-3">Total</p>
+                <div className="bg-gradient-to-br from-black/60 via-black/40 to-black/60 backdrop-blur-md border border-sage-400/30 rounded-2xl p-5 shadow-[0_8px_32px_rgba(110,231,183,0.2)]">
+                  <p className="text-xs text-white/40 uppercase tracking-widest font-medium mb-3">Total</p>
                   {getPrice() === 0 ? (
                     <div>
-                      <p className="text-2xl font-bold text-gold-400 tracking-tight">Costo Preferencial</p>
-                      <p className="text-xs text-gold-600 mt-2 font-light">Incluido en tu membresía</p>
+                      <p className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sage-300 via-sage-400 to-sage-300 tracking-tight drop-shadow-[0_2px_12px_rgba(110,231,183,0.6)]">Costo Preferencial</p>
+                      <p className="text-xs text-sage-400/70 mt-2 font-light">Incluido en tu membresía</p>
                     </div>
                   ) : (
-                    <p className="text-3xl font-bold text-gold-400 tracking-tight">${getPrice()}</p>
+                    <div className="space-y-1">
+                      <p className="text-[9px] text-sage-400/70 uppercase tracking-wider">Tu Precio</p>
+                      <p className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sage-300 via-sage-400 to-sage-300 tracking-tight drop-shadow-[0_2px_12px_rgba(110,231,183,0.6)]">${getPrice()}</p>
+                    </div>
                   )}
                 </div>
               </div>
@@ -403,7 +470,7 @@ export default function ReservationModal({
                   type="text"
                   value={answer}
                   onChange={(e) => setAnswer(e.target.value)}
-                  placeholder="Escribe tu respuesta aquí..."
+                  placeholder="Aquí escribe cómo te consentimos"
                   className="w-full bg-white/5 border border-gold-400/30 rounded-xl px-4 py-4 text-white placeholder:text-white/20 focus:outline-none focus:border-gold-400/60 focus:ring-1 focus:ring-gold-400/60 transition-all text-center font-light"
                 />
               </div>

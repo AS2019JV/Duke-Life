@@ -37,6 +37,17 @@ export default {
           800: '#806615',
           900: '#665211',
         },
+        sage: {
+          100: '#ECFDF5',
+          200: '#D1FAE5',
+          300: '#A7F3D0',
+          400: '#6EE7B7', // Luxury Bright Sage Green - More Contrast
+          500: '#34D399',
+          600: '#10B981',
+          700: '#059669',
+          800: '#047857',
+          900: '#065F46',
+        },
       },
 
       animation: {

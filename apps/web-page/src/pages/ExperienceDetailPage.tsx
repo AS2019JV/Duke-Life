@@ -69,8 +69,8 @@ export default function ExperienceDetailPage({
 
         {/* Title Overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-6 space-y-2">
-          <div className="flex items-center gap-2 text-xs text-gold-400/90 font-light tracking-widest uppercase">
-            <MapPin className="w-3 h-3" />
+          <div className="flex items-center gap-2 text-xs text-white/90 font-light tracking-widest uppercase">
+            <MapPin className="w-3 h-3 text-gold-400" />
             <span>{experience.destinations?.name}</span>
           </div>
           <h1 className="text-3xl font-extralight text-white tracking-wide leading-tight">
@@ -120,26 +120,32 @@ export default function ExperienceDetailPage({
         </div>
 
         {/* Membership Benefits */}
-        <div className="bg-gradient-to-br from-gold-400/10 to-gold-400/5 border border-gold-400/20 rounded-3xl p-6 space-y-4">
+        <div className="bg-gradient-to-br from-black/60 via-black/40 to-black/60 backdrop-blur-md border border-white/10 rounded-3xl p-6 space-y-4 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-gold-400/70 font-light tracking-widest uppercase mb-2">
+            <div className="space-y-3">
+              <p className="text-xs text-gold-400/70 font-light tracking-widest uppercase">
                 Tu Membresía {getMembershipDisplay()}
               </p>
-              <div className="flex items-baseline gap-3">
+              <div className="flex items-baseline gap-4">
                 {price.original > 0 && !price.isFree && (
-                  <span className="text-lg text-white/40 line-through font-light">
-                    ${price.original}
-                  </span>
+                  <div className="flex flex-col">
+                    <span className="text-[9px] text-white/30 uppercase tracking-wider mb-1">Precio Regular</span>
+                    <span className="text-lg text-white/30 line-through font-light">
+                      ${price.original}
+                    </span>
+                  </div>
                 )}
-                <span className={`text-2xl font-light ${price.isFree ? 'text-gold-400' : 'text-white'}`}>
-                  {price.text}
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-[9px] text-sage-400/70 uppercase tracking-wider mb-1">Tu Precio</span>
+                  <span className={`text-3xl font-bold ${price.isFree ? 'text-transparent bg-clip-text bg-gradient-to-r from-sage-300 via-sage-400 to-sage-300' : 'text-transparent bg-clip-text bg-gradient-to-r from-sage-300 via-sage-400 to-sage-300'} drop-shadow-[0_2px_12px_rgba(110,231,183,0.6)]`}>
+                    {price.text}
+                  </span>
+                </div>
               </div>
             </div>
             {price.isFree && (
-              <div className="px-4 py-2 bg-gold-400/20 rounded-full">
-                <span className="text-xs text-gold-400 font-medium tracking-wider uppercase">
+              <div className="px-4 py-2 bg-gradient-to-r from-gold-400/20 to-gold-500/10 border border-gold-400/40 rounded-full shadow-[0_4px_16px_rgba(212,175,55,0.3)]">
+                <span className="text-xs text-gold-300 font-bold tracking-wider uppercase">
                   1/mes
                 </span>
               </div>
