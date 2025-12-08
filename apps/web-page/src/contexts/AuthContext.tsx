@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { supabase, User } from '../lib/supabase';
+import { supabase, User, isSupabaseConfigured } from '../lib/supabase';
 import { Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
@@ -15,6 +15,29 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  if (!isSupabaseConfigured) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black p-4">
+        <div className="text-center max-w-lg p-8 rounded-3xl border border-gold-400/20 bg-white/5 backdrop-blur-3xl shadow-[0_0_80px_0_rgba(251,191,36,0.1)]">
+          <h1 className="text-3xl font-display font-light text-gold-400 mb-6 tracking-widest uppercase">
+            Sistema Detenido
+          </h1>
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-gold-400/50 to-transparent mb-6"></div>
+          <p className="text-white/80 font-light leading-relaxed mb-6">
+            La conexión con la base de datos no se ha podido establecer debido a una configuración faltante en el entorno.
+          </p>
+          <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl mb-6">
+            <p className="text-red-300 font-mono text-xs">
+              Error: Missing VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY
+            </p>
+          </div>
+          <p className="text-white/40 text-sm">
+            Por favor contacta al administrador del sistema.
+          </p>
+        </div>
+      </div>
+    );
+  }
   console.log('AuthProvider rendering');
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);

@@ -1,13 +1,19 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL /*|| 'https://placeholder.supabase.co';*/
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY /*|| 'placeholder';*/
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!import.meta.env.VITE_SUPABASE_URL) {
-  console.error('Missing VITE_SUPABASE_URL in .env');
+export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
+
+if (!isSupabaseConfigured) {
+  console.error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY in environment variables');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Fallback to placeholder to prevent module-level crash
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder'
+);
 
 export type MembershipType = 'gold' | 'platinum' | 'black_elite';
 
