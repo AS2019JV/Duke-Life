@@ -65,6 +65,9 @@ export interface Reservation {
   price_paid: number;
   qr_code: string;
   people_count?: number;
+  adults?: number;
+  children?: number;
+  infants?: number;
   created_at: string;
   experiences?: Experience;
 }

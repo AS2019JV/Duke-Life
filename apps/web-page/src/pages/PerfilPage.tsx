@@ -1,4 +1,4 @@
-import { UserCircle, Award, CreditCard, Settings, LogOut, Crown, Star, Calendar, TrendingUp, ChevronRight, Sparkles, Loader2 } from 'lucide-react';
+import { UserCircle, Award, CreditCard, Settings, LogOut, Crown, Star, Calendar, TrendingUp, ChevronRight, Loader2, User, Camera } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
@@ -47,11 +47,11 @@ export default function PerfilPage() {
 
   const getMembershipColor = () => {
     if (user?.membership_type === 'black_elite') return {
-      gradient: 'from-black via-black to-black',
+      gradient: 'from-neutral-900 via-[#0a0a0a] to-black',
       text: 'text-white',
-      border: 'border-white/10',
-      glow: 'shadow-[0_0_50px_-12px_rgba(250,204,21,0.25)]',
-      icon: 'text-white'
+      border: 'border-amber-500/20',
+      glow: 'shadow-[0_0_60px_-15px_rgba(251,191,36,0.15)] ring-1 ring-white/5',
+      icon: 'text-amber-200'
     };
     if (user?.membership_type === 'platinum') return {
       gradient: 'from-slate-700 via-slate-600 to-slate-800',
@@ -162,22 +162,39 @@ export default function PerfilPage() {
           <div className="flex flex-col items-center space-y-4">
             {/* Avatar */}
             {/* Avatar */}
-            <div 
-              className={`relative w-28 h-28 rounded-full bg-gradient-to-br ${colors.gradient} flex items-center justify-center border-2 ${colors.border} shadow-2xl ${colors.glow} animate-zoomIn group cursor-pointer overflow-hidden`}
-              onClick={handleAvatarClick}
-            >
-              {user?.avatar_url ? (
-                <img src={user.avatar_url} alt="Avatar" className="w-full h-full rounded-full object-cover" />
-              ) : (
-                <UserCircle className={`w-20 h-20 ${colors.icon}`} />
-              )}
+            <div className="relative group cursor-pointer">
+              {/* Animated Gradient Border */}
+              <div className={`absolute -inset-0.5 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt ${colors.gradient}`}></div>
+              
+              {/* Avatar Container */}
+              <div 
+                className={`relative w-32 h-32 rounded-full p-1 bg-neutral-900 border ${colors.border} shadow-2xl flex items-center justify-center overflow-hidden`}
+                onClick={handleAvatarClick}
+              >
+                {/* Image or Default Icon */}
+                <div className="w-full h-full rounded-full overflow-hidden bg-neutral-800 relative z-10">
+                  {user?.avatar_url ? (
+                    <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                  ) : (
+                    <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br ${colors.gradient}`}>
+                        <User className="w-16 h-16 text-white/80" fill="currentColor" strokeWidth={1} />
+                    </div>
+                  )}
 
-              {/* Loading Overlay */}
-              {uploading && (
-                <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-10">
-                  <Loader2 className="w-8 h-8 text-white animate-spin" />
+                  {/* Edit Overlay (Visible on Hover) */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-2 backdrop-blur-[2px]">
+                    <Camera className="w-8 h-8 text-white drop-shadow-md" />
+                    <span className="text-[10px] font-medium text-white tracking-widest uppercase">Editar</span>
+                  </div>
+
+                  {/* Loading Overlay */}
+                  {uploading && (
+                    <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-20">
+                      <Loader2 className="w-8 h-8 text-white animate-spin" />
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
               
               <input 
                 type="file" 
@@ -200,42 +217,65 @@ export default function PerfilPage() {
           </div>
 
           {/* Membership Card */}
-          <div className={`relative bg-gradient-to-br ${colors.gradient} rounded-3xl p-6 border ${colors.border} shadow-2xl ${colors.glow} overflow-hidden`}>
-            {/* Card Pattern & Glossy Effect */}
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full blur-2xl" />
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full blur-2xl" />
-            </div>
-            {/* Glossy Shine Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none" />
-
-            <div className="relative space-y-4">
-              {/* Membership Type */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Sparkles className={`w-5 h-5 ${colors.icon}`} />
-                  <span className={`text-xs font-semibold tracking-widest uppercase ${colors.text}`}>
+          <div className={`relative aspect-[1.586/1] w-full max-w-sm mx-auto bg-gradient-to-br ${colors.gradient} rounded-3xl p-6 border ${colors.border} shadow-2xl ${colors.glow} overflow-hidden flex flex-col justify-between group transition-all duration-500 hover:scale-[1.02]`}>
+            {/* Luxury Texture & shine */}
+            <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent" />
+            <div className="absolute -top-[100%] -left-[100%] w-[300%] h-[300%] bg-gradient-to-br from-transparent via-white/5 to-transparent rotate-12 group-hover:translate-x-full group-hover:translate-y-full transition-transform duration-1000 ease-in-out" />
+            
+            {/* Header */}
+            <div className="relative flex items-start justify-between">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <User className={`w-4 h-4 ${colors.icon}`} fill="currentColor" />
+                  <span className={`text-[10px] font-bold tracking-[0.2em] uppercase ${colors.text} opacity-80`}>
                     Membresía
                   </span>
                 </div>
-                <Crown className={`w-5 h-5 ${colors.icon}`} />
+                {/* Premium Gold Text Effect for Black Elite */}
+                {user?.membership_type === 'black_elite' ? (
+                  <h2 className="text-3xl font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-600 drop-shadow-sm font-display">
+                    BLACK ELITE
+                  </h2>
+                ) : (
+                  <h2 className={`text-2xl font-bold tracking-wider ${colors.text}`}>
+                    {getMembershipDisplay()}
+                  </h2>
+                )}
               </div>
+              <Crown className={`w-8 h-8 ${colors.icon} opacity-80 drop-shadow-lg`} />
+            </div>
 
-              {/* Membership Name */}
-              <div>
-                <h2 className={`text-2xl font-bold tracking-wider ${user?.membership_type === 'black_elite' ? 'text-gold-400' : colors.text}`}>
-                  {getMembershipDisplay()}
-                </h2>
-                <p className={`text-xs font-medium mt-1 ${colors.text} opacity-80`}>
-                  Miembro desde {new Date(user?.created_at || '').getFullYear()}
-                </p>
-              </div>
+            {/* Chip & Contactless (Decorative) */}
+            <div className="relative flex items-center gap-4 opacity-80">
+               <div className="w-10 h-8 rounded bg-gradient-to-br from-yellow-200/20 to-yellow-600/20 border border-yellow-400/30 flex items-center justify-center overflow-hidden">
+                  <div className="w-[120%] h-[1px] bg-yellow-400/30 rotate-45" />
+                  <div className="absolute w-[120%] h-[1px] bg-yellow-400/30 -rotate-45" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-transparent via-yellow-400/10 to-transparent" />
+               </div>
+               <div className={`w-6 h-6 rounded-full border border-white/10 flex items-center justify-center`}>
+                  <div className="w-4 h-4 rounded-full border border-white/20" />
+               </div>
+            </div>
 
-              {/* Member ID */}
-              <div className="pt-4 border-t border-white/10">
-                <p className={`text-xs font-medium tracking-wider ${colors.text} opacity-60`}>
-                  ID: {user?.id.slice(0, 8).toUpperCase()}
-                </p>
+            {/* Footer */}
+            <div className="relative">
+              <div className="flex justify-between items-end">
+                <div className="space-y-1">
+                   <p className={`text-[10px] font-medium tracking-widest ${colors.text} opacity-60 uppercase`}>
+                    Miembro desde
+                  </p>
+                  <p className={`text-sm font-semibold tracking-wide ${colors.text}`}>
+                    {new Date(user?.created_at || '').getFullYear()}
+                  </p>
+                </div>
+                 <div className="text-right space-y-1">
+                   <p className={`text-[10px] font-medium tracking-widest ${colors.text} opacity-60 uppercase`}>
+                    ID Exclusivo
+                  </p>
+                  <p className={`text-sm font-mono tracking-widest ${colors.text}`}>
+                    {(user?.id || '').slice(0, 4).toUpperCase()} {(user?.id || '').slice(4, 8).toUpperCase()}
+                  </p>
+                </div>
               </div>
             </div>
           </div>

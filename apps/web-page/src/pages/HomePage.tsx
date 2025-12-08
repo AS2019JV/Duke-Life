@@ -204,7 +204,7 @@ export default function HomePage({ onPageChange }: HomePageProps) {
           
           {/* Right Side: Membership Badge with 'Socio' label */}
           <div className="flex flex-col items-end gap-1">
-            <span className="text-[8px] font-medium text-gold-400/60 tracking-[0.3em] uppercase">
+            <span className="text-[9px] font-semibold text-gold-300/60 tracking-[0.25em] uppercase drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
               Socio
             </span>
             <div className="px-3 py-1 rounded-full bg-gradient-to-r from-black via-zinc-900 to-black border border-gold-400/30 shadow-[0_0_15px_rgba(250,204,21,0.1)] flex items-center gap-2">
@@ -254,8 +254,8 @@ export default function HomePage({ onPageChange }: HomePageProps) {
           <div className="relative w-full flex flex-col items-center gap-8">
             <div className="relative w-full h-[400px] flex justify-center items-center overflow-hidden">
               {/* Luxury Side Fades */}
-              <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-black via-black/80 to-transparent z-40 pointer-events-none" />
-              <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-black via-black/80 to-transparent z-40 pointer-events-none" />
+              <div className="absolute left-0 top-0 bottom-0 w-6 md:w-24 bg-gradient-to-r from-black via-black/80 to-transparent z-40 pointer-events-none" />
+              <div className="absolute right-0 top-0 bottom-0 w-6 md:w-24 bg-gradient-to-l from-black via-black/80 to-transparent z-40 pointer-events-none" />
               
               <div 
                 className="relative w-full h-full flex justify-center items-center perspective-1000 cursor-grab active:cursor-grabbing"
@@ -419,9 +419,14 @@ export default function HomePage({ onPageChange }: HomePageProps) {
                    const discount = Math.round(((exp.base_price - membershipPrice) / exp.base_price) * 100);
                    
                    if (discount > 0) {
+                     const isHighDiscount = discount >= 55;
+                     const colorClasses = isHighDiscount
+                       ? 'bg-red-950/70 border-red-500/50 text-red-100 shadow-[0_8px_16px_rgba(153,27,27,0.3)]'
+                       : 'bg-yellow-950/70 border-yellow-500/50 text-yellow-100 shadow-[0_8px_16px_rgba(234,179,8,0.3)]';
+
                      return (
-                       <div className="absolute top-6 right-6 bg-black/70 backdrop-blur-xl border-2 border-sage-400/70 px-5 py-2 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.6),0_0_24px_rgba(110,231,183,0.5)] group-hover:shadow-[0_12px_48px_rgba(0,0,0,0.8),0_0_32px_rgba(110,231,183,0.7)] group-hover:scale-105 transition-all duration-500">
-                         <span className="text-[11px] font-extrabold text-sage-300 tracking-[0.2em] uppercase drop-shadow-[0_2px_8px_rgba(110,231,183,0.9)]">
+                       <div className={`absolute top-6 left-6 px-6 py-2.5 rounded-full border-2 backdrop-blur-xl flex items-center justify-center gap-2 ${colorClasses} z-10 transition-transform duration-500 hover:scale-105`}>
+                         <span className="text-sm font-bold tracking-[0.2em] uppercase drop-shadow-md">
                            {discount}% OFF
                          </span>
                        </div>

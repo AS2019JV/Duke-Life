@@ -137,7 +137,7 @@ export default function ExperienceDetailPage({
                 )}
                 <div className="flex flex-col">
                   <span className="text-[9px] text-sage-400/70 uppercase tracking-wider mb-1">Tu Precio</span>
-                  <span className={`text-3xl font-bold ${price.isFree ? 'text-transparent bg-clip-text bg-gradient-to-r from-sage-300 via-sage-400 to-sage-300' : 'text-transparent bg-clip-text bg-gradient-to-r from-sage-300 via-sage-400 to-sage-300'} drop-shadow-[0_2px_12px_rgba(110,231,183,0.6)]`}>
+                  <span className={`text-3xl font-bold ${price.isFree ? 'text-sage-300' : 'text-emerald-400'}`}>
                     {price.text}
                   </span>
                 </div>

@@ -151,9 +151,21 @@ export default function ReservationDetailModal({
                 <Users size={12} />
                 Personas
               </div>
-              <p className="text-sm text-white font-medium">
-                {reservation.people_count || 1}
-              </p>
+                {reservation.adults ? (
+                  <div className="flex flex-col gap-0.5">
+                    <p className="text-sm text-white font-medium">{reservation.adults} Adultos</p>
+                    {!!reservation.children && reservation.children > 0 && (
+                      <p className="text-xs text-white/60">{reservation.children} Niños</p>
+                    )}
+                    {!!reservation.infants && reservation.infants > 0 && (
+                      <p className="text-xs text-white/60">{reservation.infants} Bebés</p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-white font-medium">
+                    {reservation.people_count || 1}
+                  </p>
+                )}
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-1.5 text-xs text-white/40 uppercase tracking-wider">

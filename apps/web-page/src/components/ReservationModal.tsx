@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Clock, ChevronLeft, ChevronRight, CheckCircle2, Users, Sparkles } from 'lucide-react';
+import { X, Clock, ChevronLeft, ChevronRight, CheckCircle2, Users } from 'lucide-react';
 import { supabase, Experience } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -102,7 +102,10 @@ export default function ReservationModal({
       reservation_date: reservationDate,
       status: 'confirmed',
       price_paid: getPrice(),
-      people_count: peopleCount, // Attempt to save people count
+      people_count: peopleCount,
+      adults: adults,
+      children: children,
+      infants: infants,
       // We might want to save the answer somewhere, but schema doesn't have it.
       // Maybe in a future 'notes' field. For now, we just collect it for the experience.
     });
@@ -360,7 +363,15 @@ export default function ReservationModal({
                       >
                         -
                       </button>
-                      <span className="text-base font-bold text-white w-4 text-center">{adults}</span>
+                      <input
+                        type="number"
+                        min="1"
+                        value={adults || ''}
+                        onChange={(e) => setAdults(parseInt(e.target.value) || 0)}
+                        onBlur={() => { if (adults < 1) setAdults(1); }}
+                        placeholder="0"
+                        className="w-12 bg-transparent text-center text-base font-bold text-white placeholder:text-white/20 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      />
                       <button 
                         onClick={() => setAdults(adults + 1)}
                         className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 hover:border-gold-400/30 transition-all active:scale-95"
@@ -384,7 +395,14 @@ export default function ReservationModal({
                       >
                         -
                       </button>
-                      <span className="text-base font-bold text-white w-4 text-center">{children}</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={children || ''}
+                        onChange={(e) => setChildren(parseInt(e.target.value) || 0)}
+                        placeholder="0"
+                        className="w-12 bg-transparent text-center text-base font-bold text-white placeholder:text-white/20 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      />
                       <button 
                         onClick={() => setChildren(children + 1)}
                         className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 hover:border-gold-400/30 transition-all active:scale-95"
@@ -408,7 +426,14 @@ export default function ReservationModal({
                       >
                         -
                       </button>
-                      <span className="text-base font-bold text-white w-4 text-center">{infants}</span>
+                      <input
+                        type="number"
+                        min="0"
+                        value={infants || ''}
+                        onChange={(e) => setInfants(parseInt(e.target.value) || 0)}
+                        placeholder="0"
+                        className="w-12 bg-transparent text-center text-base font-bold text-white placeholder:text-white/20 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      />
                       <button 
                         onClick={() => setInfants(infants + 1)}
                         className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 hover:border-gold-400/30 transition-all active:scale-95"
@@ -423,13 +448,13 @@ export default function ReservationModal({
                   <p className="text-xs text-white/40 uppercase tracking-widest font-medium mb-3">Total</p>
                   {getPrice() === 0 ? (
                     <div>
-                      <p className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sage-300 via-sage-400 to-sage-300 tracking-tight drop-shadow-[0_2px_12px_rgba(110,231,183,0.6)]">Costo Preferencial</p>
+                      <p className="text-2xl font-bold text-emerald-400 tracking-tight">Costo Preferencial</p>
                       <p className="text-xs text-sage-400/70 mt-2 font-light">Incluido en tu membresía</p>
                     </div>
                   ) : (
                     <div className="space-y-1">
                       <p className="text-[9px] text-sage-400/70 uppercase tracking-wider">Tu Precio</p>
-                      <p className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sage-300 via-sage-400 to-sage-300 tracking-tight drop-shadow-[0_2px_12px_rgba(110,231,183,0.6)]">${getPrice()}</p>
+                      <p className="text-4xl font-bold text-emerald-400 tracking-tight">${getPrice()}</p>
                     </div>
                   )}
                 </div>
@@ -445,19 +470,20 @@ export default function ReservationModal({
 
           {step === 'questionnaire' && (
             <div className="p-6 space-y-8 animate-in fade-in duration-500 flex flex-col justify-center min-h-[300px]">
-              <div className="text-center space-y-2">
-                <Sparkles className="w-8 h-8 text-gold-400 mx-auto mb-4 animate-pulse" />
-                <p className="text-sm text-white/60 font-light leading-relaxed">
+              <div className="text-center space-y-4">
+                <p className="text-base md:text-lg text-white/60 font-light tracking-[0.1em] leading-relaxed">
                   Nuestro objetivo es que te la pases de lo mejor así que cuéntanos:
                 </p>
               </div>
 
-              <div className="relative h-20 flex items-center justify-center">
+              <div className="relative h-32 flex items-center justify-center overflow-hidden">
                 {QUESTIONS.map((q, idx) => (
                   <h3
                     key={idx}
-                    className={`absolute text-xl md:text-2xl font-light text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-400 to-gold-200 text-center transition-all duration-1000 ease-in-out ${
-                      idx === currentQuestionIndex ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-4'
+                    className={`absolute w-full px-4 text-2xl md:text-4xl font-light text-transparent bg-clip-text bg-gradient-to-b from-gold-200 via-gold-300 to-gold-500 text-center transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+                      idx === currentQuestionIndex 
+                        ? 'opacity-100 transform translate-y-0 scale-100 blur-0' 
+                        : 'opacity-0 transform translate-y-8 scale-95 blur-sm'
                     }`}
                   >
                     {q}
@@ -501,7 +527,7 @@ export default function ReservationModal({
           {step === 'confirm' && (
             <button
               onClick={() => setStep('questionnaire')}
-              className="flex-1 bg-gradient-to-r from-gold-400 to-gold-600 text-black font-semibold py-3 rounded-xl hover:shadow-lg hover:shadow-gold-500/40 transition-all flex items-center justify-center gap-2 tracking-wide hover:scale-105 active:scale-95"
+              className="flex-1 bg-gradient-to-r from-gold-400 to-gold-600 hover:from-gold-300 hover:to-gold-500 text-black font-bold py-3 rounded-xl shadow-[0_0_15px_rgba(250,204,21,0.3)] hover:shadow-[0_0_30px_rgba(250,204,21,0.6)] transition-all duration-300 flex items-center justify-center gap-2 tracking-wide hover:scale-105 active:scale-95"
             >
               Confirmar
             </button>
@@ -511,7 +537,7 @@ export default function ReservationModal({
             <button
               onClick={handleReserve}
               disabled={loading}
-              className="w-full bg-gradient-to-r from-gold-400 to-gold-600 text-black font-semibold py-4 rounded-xl hover:shadow-lg hover:shadow-gold-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 tracking-wide hover:scale-105 active:scale-95 uppercase text-sm"
+              className="w-full bg-gradient-to-r from-gold-400 to-gold-600 hover:from-gold-300 hover:to-gold-500 text-black font-bold py-4 rounded-xl shadow-[0_0_15px_rgba(250,204,21,0.3)] hover:shadow-[0_0_30px_rgba(250,204,21,0.6)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 tracking-wide hover:scale-105 active:scale-95 uppercase text-sm"
             >
               {loading ? (
                 <>
