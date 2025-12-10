@@ -177,7 +177,7 @@ export default function ReservasPage({ onPageChange }: ReservasPageProps) {
                     
                     {/* Category Tag - Luxury Design */}
                     <div className="absolute top-4 left-4 group/tag">
-                      <div className="relative px-4 py-2 rounded-full bg-gradient-to-br from-black/80 via-black/70 to-black/60 backdrop-blur-xl border border-gold-400/20 shadow-lg shadow-gold-900/20 transition-all duration-300 group-hover/tag:border-gold-400/40 group-hover/tag:shadow-gold-900/30">
+                      <div className="relative px-3 py-1.5 rounded-full border backdrop-blur-md flex items-center gap-1.5 bg-yellow-900/60 border-yellow-500/40">
                         <span className="text-[9px] text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-400 to-gold-200 font-semibold tracking-[0.2em] uppercase">
                           {reservation.experiences?.categories?.name || 'EXPERIENCIA'}
                         </span>
